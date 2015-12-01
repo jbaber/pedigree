@@ -15,7 +15,7 @@ Caveats:
 Until I figure out [how to make a Python package][ugh] (or someone does it
 right in a fork), I will list dependencies here:
   - Python Packages:
-    - `pip install --user` [yaml][pyyaml] [docopt][]
+    - `pip install --user` [yaml][] [docopt][]
   - Linux programs:
     - `sudo apt-get install` [graphviz][dot]
 
