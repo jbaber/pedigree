@@ -269,13 +269,13 @@ def main(yaml_filename, file_basename):
         stdout=svg_file)
 
 if __name__ == "__main__":
-  help_text = """generate.py
+  help_text = """pedigree.py
 
 Usage:
-  generate.py [--yaml-filename=<filename>] [--base-filename=<filename>]
-  generate.py cleanup
-  generate.py -h | --help
-  generate.py --version
+  pedigree.py [--yaml-filename=<filename>] [--base-filename=<filename>]
+  pedigree.py cleanup
+  pedigree.py -h | --help
+  pedigree.py --version
 
 Options:
   -h --help                      Show this screen.
