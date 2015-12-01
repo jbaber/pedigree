@@ -1,4 +1,6 @@
 - [Package][] properly
+- Library-ize
+- Factor output of different files into different functions
 - Generate `.svg` file from `.dot` in some purely Python way so that
   linux command line isn't necessary.
 - Simple menu-based console program for inputting names as they're
