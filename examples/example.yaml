@@ -1,0 +1,35 @@
+father:
+  "???":
+    - Ed Flintstone
+    - Zeke Flintstone
+  Ed Flintstone:
+    - Frederick Joseph \"Fred\" Flintstone
+  Frederick Joseph \"Fred\" Flintstone:
+    - Pebbles Flintstone
+  Ricky Slaghoople:
+    - Wilma Pebbles Slaghoople
+  Barney Rubble:
+    - Bamm-Bamm Rubble
+  Bamm-Bamm Rubble:
+    - Roxy Rubble
+    - Chip Rubble
+---
+mother:
+  Betty Jean McBricker:
+    - Bamm-Bamm Rubble
+  Pearl Pebble Slaghoople:
+    - Wilma Pebbles Slaghoople
+  "????":
+    - Ed Flintstone
+    - Zeke Flintstone
+  Wilma Pebbles Slaghoople:
+    - Pebbles Flintstone
+  Pebbles Flintstone:
+    - Roxy Rubble
+    - Chip Rubble
+  Edna Hardrock Flintstone:
+    - Frederick Joseph \"Fred\" Flintstone
+---
+spouse:
+  Frederick Joseph \"Fred\" Flintstone:
+    - Secret Ex-Wife
