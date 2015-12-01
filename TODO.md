@@ -1,3 +1,4 @@
+- Add screenshots
 - [Package][] properly
 - Library-ize
 - Factor output of different files into different functions
@@ -16,5 +17,8 @@
 - Make colors specifiable
 - Give option to favory patriliny over matriliny or vice-versa
   to make a planar graph.
+- Add ability to make visualizations that have anonymized names
+  and/or only first names.
+- Remove arrowhead from "spouse" relation
 
 [Package]: http://blog.ionelmc.ro/2015/02/24/the-problem-with-packaging-in-python/
