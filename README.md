@@ -1,5 +1,5 @@
 `pedigree.py` takes a [yaml][] file like that in `examples/example.yaml` ([source][]) and outputs a
-few messy visualizations that do not favor patriliny over matriliny.  See `examples` for example output.
+few messy visualizations that do not favor patriliny over matriliny.  See `examples/` for example output.
 
 Outputs:
 --------
