@@ -8,10 +8,34 @@ import os
 
 version = '0.1.0'
 
+help_text = """pedigree.py
+
+Usage:
+  pedigree.py [--yaml-filename=<filename>] [--base-filename=<filename>]
+  pedigree.py cleanup
+  pedigree.py -h | --help
+  pedigree.py --version
+
+Options:
+  -h --help                      Show this screen.
+  -v --version                   Show version.
+  -y --yaml-filename=<filename>  .yaml file containing relations for tree.
+                                 [DEFAULT: relations.yaml]
+  -b --base-filename=<filename>  XXX in output filenames XXX.svg, XXX.html, ...
+                                 [DEFAULT: family_tree]
+  cleanup                        Delete generated files (XXX.svg, etc.)"""
+
+
 def main(yaml_filename, file_basename):
 
-  with open(yaml_filename) as f:
-    biglist = list(yaml.load_all(f))
+  # Open the YAML file or fail gracefully
+  try:
+    with open(yaml_filename) as f:
+      biglist = list(yaml.load_all(f))
+  except IOError, e:
+    print("\n\033[91mCouldn't open {}\033[0m\n".format(e.filename))
+    print(help_text)
+    exit(1)
 
   fathers_dict = biglist[0]['father']
   mothers_dict = biglist[1]['mother']
@@ -269,23 +293,6 @@ def main(yaml_filename, file_basename):
         stdout=svg_file)
 
 if __name__ == "__main__":
-  help_text = """pedigree.py
-
-Usage:
-  pedigree.py [--yaml-filename=<filename>] [--base-filename=<filename>]
-  pedigree.py cleanup
-  pedigree.py -h | --help
-  pedigree.py --version
-
-Options:
-  -h --help                      Show this screen.
-  -v --version                   Show version.
-  -y --yaml-filename=<filename>  .yaml file containing relations for tree.
-                                 [DEFAULT: relations.yaml]
-  -b --base-filename=<filename>  XXX in output filenames XXX.svg, XXX.html, ...
-                                 [DEFAULT: family_tree]
-  cleanup                        Delete generated files (XXX.svg, etc.)"""
-
   args = docopt(help_text, version=version)
 
   base_filename = args['--base-filename']
