@@ -5,6 +5,7 @@ import hashlib
 import subprocess
 from docopt import docopt
 import os
+import pedigree_lib
 
 version = '0.1.0'
 
@@ -37,53 +38,9 @@ def main(yaml_filename, file_basename):
     print(help_text)
     exit(1)
 
-  fathers_dict = biglist[0]['father']
-  mothers_dict = biglist[1]['mother']
-  spouses_dict = biglist[2]['spouse']
-
-  # Make lists so that index in the lists gives a unique identifier
-  # Also makes room for later information
-  fathers = []
-  mothers = []
-  spouses = []
-  for father in fathers_dict:
-    fathers.append(
-      {'name': father, 'children': fathers_dict[father]}
-    )
-  for mother in mothers_dict:
-    mothers.append(
-      {'name': mother, 'children': mothers_dict[mother]}
-    )
-  for prime_spouse in spouses_dict:
-    spouses.append(
-      {'name': prime_spouse, 'spouses': spouses_dict[prime_spouse]}
-    )
-
-  # Give everyone a unique id
-  def uid(name):
-    return "personhash" + hashlib.md5(name).hexdigest()
-
-  # Make a backwards lookup table and record every person
-  person_names = set()
-  name_to_uid = {}
-  for father in fathers:
-    name_to_uid[father['name']] = uid(father['name'])
-    person_names.add(father['name'])
-    for child in father['children']:
-      name_to_uid[child] = uid(child)
-      person_names.add(child)
-  for mother in mothers:
-    name_to_uid[mother['name']] = uid(mother['name'])
-    person_names.add(mother['name'])
-    for child in mother['children']:
-      name_to_uid[child] = uid(child)
-      person_names.add(child)
-  for prime_spouse in spouses:
-    name_to_uid[prime_spouse['name']] = uid(prime_spouse['name'])
-    person_names.add(prime_spouse['name'])
-    for spouse in prime_spouse['spouses']:
-      name_to_uid[spouse] = uid(spouse)
-      person_names.add(spouse)
+  # Split into individual lists
+  fathers, mothers, spouses, name_to_uid, person_names = \
+      pedigree_lib.split_biglist(biglist)
 
   # Generate d3 html page
   with open('{}.html'.format(file_basename), 'w') as f:
@@ -264,25 +221,25 @@ def main(yaml_filename, file_basename):
 
     # Set up the nodes
     for person_name in person_names:
-      f.write('{} [label="{}", shape="box"];\n'.format(uid(person_name),
+      f.write('{} [label="{}", shape="box"];\n'.format(pedigree_lib.uid(person_name),
           person_name))
 
     # Set up the connections
     f.write("\n\n")
     for father in fathers:
       for child in father['children']:
-        f.write('{} -> {} [color=blue];\n'.format(uid(father['name']), 
-            uid(child)))
+        f.write('{} -> {} [color=blue];\n'.format(pedigree_lib.uid(father['name']), 
+            pedigree_lib.uid(child)))
     f.write("\n\n")
     for mother in mothers:
       for child in mother['children']:
         f.write('{} -> {} [color=orange];\n'.format(
-            uid(mother['name']), uid(child)))
+            pedigree_lib.uid(mother['name']), pedigree_lib.uid(child)))
     f.write("\n\n")
     for prime_spouse in spouses:
       for spouse in prime_spouse['spouses']:
         f.write('{} -> {} [style="dotted"];\n'.format(
-            uid(prime_spouse['name']), uid(spouse)))
+            pedigree_lib.uid(prime_spouse['name']), pedigree_lib.uid(spouse)))
     f.write("""
   }
   """)
