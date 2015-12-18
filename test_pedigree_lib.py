@@ -55,3 +55,9 @@ def test_split_biglist(fathers, mothers, spouses, name_to_uid,
       pedigree_lib.split_biglist(biglist) == \
       (fathers, mothers, spouses, name_to_uid, person_names)
   )
+
+def test_d3_html_page_generator(fathers, mothers, spouses):
+  with open('examples/example2.html') as f:
+    assert(
+      "".join(pedigree_lib.d3_html_page_generator(fathers, mothers, spouses)) == f.read()
+    )
