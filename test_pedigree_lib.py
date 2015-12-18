@@ -1,23 +1,27 @@
 import pedigree_lib
+import pytest
 
-def test_split_biglist():
-  biglist = [
-    {'father': {'a': ['b', 'c'], 'd': ['e']}},
-    {'mother': {'f': ['g', 'h'], 'i': ['j']}},
-    {'spouse': {'k': ['l', 'm'], 'n': ['o']}},
+@pytest.fixture
+def fathers():
+  return [
+    {'name': 'a', 'children': ['b', 'c']},
+    {'name': 'd', 'children': ['e']},
   ]
-
-  assert(pedigree_lib.split_biglist(biglist) == (
-    [{'name': 'a', 'children': ['b', 'c']},
-     {'name': 'd', 'children': ['e']},
-    ],
-    [{'name': 'i', 'children': ['j']},
-     {'name': 'f', 'children': ['g', 'h']},
-    ],
-    [{'name': 'k', 'spouses': ['l', 'm']},
-     {'name': 'n', 'spouses': ['o']},
-    ],
-    {'a': 'personhash0cc175b9c0f1b6a831c399e269772661',
+@pytest.fixture
+def mothers():
+  return [
+    {'name': 'i', 'children': ['j']},
+    {'name': 'f', 'children': ['g', 'h']},
+]
+@pytest.fixture
+def spouses():
+  return [
+    {'name': 'k', 'spouses': ['l', 'm']},
+    {'name': 'n', 'spouses': ['o']},
+  ]
+@pytest.fixture
+def name_to_uid():
+  return {'a': 'personhash0cc175b9c0f1b6a831c399e269772661',
      'b': 'personhash92eb5ffee6ae2fec3ad71c777531578f',
      'c': 'personhash4a8a08f09d37b73795649038408b5f33',
      'd': 'personhash8277e0910d750195b448797616e091ad',
@@ -32,7 +36,22 @@ def test_split_biglist():
      'm': 'personhash6f8f57715090da2632453988d9a1501b',
      'n': 'personhash7b8b965ad4bca0e41ab51de7b31363a1',
      'o': 'personhashd95679752134a2d9eb61dbd7b91c4bcc'
-    },
-    set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-        'k', 'l', 'm', 'n', 'o']),
-  ))
+    }
+@pytest.fixture
+def person_names():
+  return set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+      'k', 'l', 'm', 'n', 'o'])
+@pytest.fixture
+def biglist():
+  return [
+    {'father': {'a': ['b', 'c'], 'd': ['e']}},
+    {'mother': {'f': ['g', 'h'], 'i': ['j']}},
+    {'spouse': {'k': ['l', 'm'], 'n': ['o']}},
+  ]
+
+def test_split_biglist(fathers, mothers, spouses, name_to_uid,
+    person_names, biglist):
+  assert(
+      pedigree_lib.split_biglist(biglist) == \
+      (fathers, mothers, spouses, name_to_uid, person_names)
+  )
