@@ -12,8 +12,8 @@ version = '0.1.0'
 help_text = """pedigree.py
 
 Usage:
-  pedigree.py [--yaml-filename=<filename>] [--base-filename=<filename>]
-  pedigree.py cleanup
+  pedigree.py [--base-filename=<filename>] [--yaml-filename=<filename>] 
+  pedigree.py [--base-filename=<filename>] cleanup
   pedigree.py -h | --help
   pedigree.py --version
 
