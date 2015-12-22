@@ -48,36 +48,11 @@ def main(yaml_filename, file_basename):
         mothers, spouses):
       f.write(line)
 
-
   # Generate graphviz .dot file
   with open('{}.dot'.format(file_basename), 'w') as f:
-    f.write("""digraph family_tree {
-  """)
-
-    # Set up the nodes
-    for person_name in person_names:
-      f.write('{} [label="{}", shape="box"];\n'.format(pedigree_lib.uid(person_name),
-          person_name))
-
-    # Set up the connections
-    f.write("\n\n")
-    for father in fathers:
-      for child in father['children']:
-        f.write('{} -> {} [color=blue];\n'.format(pedigree_lib.uid(father['name']), 
-            pedigree_lib.uid(child)))
-    f.write("\n\n")
-    for mother in mothers:
-      for child in mother['children']:
-        f.write('{} -> {} [color=orange];\n'.format(
-            pedigree_lib.uid(mother['name']), pedigree_lib.uid(child)))
-    f.write("\n\n")
-    for prime_spouse in spouses:
-      for spouse in prime_spouse['spouses']:
-        f.write('{} -> {} [style="dotted"];\n'.format(
-            pedigree_lib.uid(prime_spouse['name']), pedigree_lib.uid(spouse)))
-    f.write("""
-  }
-  """)
+    for line in pedigree_lib.dot_file_generator(fathers,
+        mothers, spouses, person_names):
+      f.write(line)
 
   # Generate .svg from .dot file
   with open('{}.svg'.format(file_basename), 'w') as svg_file:
@@ -86,7 +61,6 @@ def main(yaml_filename, file_basename):
 
 if __name__ == "__main__":
   args = docopt(help_text, version=version)
-
   base_filename = args['--base-filename']
   yaml_filename = args['--yaml-filename']
 

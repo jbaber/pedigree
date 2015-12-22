@@ -272,3 +272,35 @@ function transform(d) {
 </body>
 </html>
 """
+
+
+def dot_file_generator(fathers, mothers, spouses, person_names):
+  """Generate a graphviz .dot file"""
+
+  yield "digraph family_tree {\n"
+
+  # Set up the nodes
+  for person_name in person_names:
+    yield '  {} [label="{}", shape="box"];\n'.format(
+        uid(person_name), person_name)
+
+  # Set up the connections
+  yield "\n\n"
+  for father in fathers:
+    for child in father['children']:
+      yield '  {} -> {} [color=blue];\n'.format(
+          uid(father['name']), 
+          uid(child))
+  yield "\n\n"
+  for mother in mothers:
+    for child in mother['children']:
+      yield '  {} -> {} [color=orange];\n'.format(
+          uid(mother['name']),
+          uid(child))
+  yield "\n\n"
+  for prime_spouse in spouses:
+    for spouse in prime_spouse['spouses']:
+      yield '  {} -> {} [style="dotted"];\n'.format(
+          uid(prime_spouse['name']),
+          uid(spouse))
+  yield "\n}\n"

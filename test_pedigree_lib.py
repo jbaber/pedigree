@@ -61,3 +61,13 @@ def test_d3_html_page_generator(fathers, mothers, spouses):
     assert(
       "".join(pedigree_lib.d3_html_page_generator(fathers, mothers, spouses)) == f.read()
     )
+
+def test_dot_file_generator(fathers, mothers, spouses,
+    person_names):
+  received = "".join(pedigree_lib.dot_file_generator(fathers,
+      mothers, spouses, person_names))
+
+  with open('examples/example2.dot') as f:
+    expected = f.read()
+
+  assert(received == expected)
