@@ -13,7 +13,7 @@ help_text = """pedigree.py
 
 Usage:
   pedigree.py [--base-filename=<filename>] [--yaml-filename=<filename>] 
-  pedigree.py [--base-filename=<filename>] cleanup
+  pedigree.py cleanup [--base-filename=<filename>] 
   pedigree.py -h | --help
   pedigree.py --version
 
