@@ -1,7 +1,5 @@
 - Add screenshots
 - [Package][] properly
-- Library-ize
-- Factor output of different files into different functions
 - Generate `.svg` file from `.dot` in some purely Python way so that
   linux command line isn't necessary.
 - Simple menu-based console program for inputting names as they're
@@ -13,7 +11,6 @@
   images and stories
   - Use images in some of the visualizations
 - Handle empty `father`, `mother`, and/or `spouse` tables.
-- Friendly errors when CLI specified files don't exist
 - Make colors specifiable
 - Give option to favory patriliny over matriliny or vice-versa
   to make a planar graph.
