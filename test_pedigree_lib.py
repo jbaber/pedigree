@@ -56,6 +56,12 @@ def test_split_biglist(fathers, mothers, spouses, name_to_uid,
       (fathers, mothers, spouses, name_to_uid, person_names)
   )
 
+def test_join_biglist(fathers, mothers, spouses, biglist):
+  assert(
+      pedigree_lib.join_biglist(fathers, mothers, spouses) == \
+      biglist
+  )
+
 def test_d3_html_page_generator(fathers, mothers, spouses):
   with open('examples/example2.html') as f:
     assert(

@@ -102,6 +102,47 @@ def split_biglist(biglist):
 
   return fathers, mothers, spouses, name_to_uid, person_names
 
+
+def join_biglist(fathers, mothers, spouses):
+  """
+  This function should be the inverse of `split_biglist`.
+  
+  e.g.
+
+      fathers = [{'name': 'a', 'children': ['b', 'c']},
+      {'name': 'd', 'children': ['e']},
+      ]
+      mothers = [{'name': 'i', 'children': ['j']},
+      {'name': 'f', 'children': ['g', 'h']},
+      ]
+      spouses = [{'name': 'k', 'spouses': ['l', 'm']},
+      {'name': 'n', 'spouses': ['o']},
+      ]
+
+  should yield
+      [                                            \
+        {'father': {'a': ['b', 'c'], 'd': ['e']}}, \
+        {'mother': {'f': ['g', 'h'], 'i': ['j']}}, \
+        {'spouse': {'k': ['l', 'm'], 'n': ['o']}}, \
+      ]
+
+  """
+  return [
+    {'father': dict( (father['name'], father['children'])
+          for father
+          in fathers
+    )},
+    {'mother': dict( (mother['name'], mother['children'])
+          for mother
+          in mothers
+    )},
+    {'spouse': dict( (spouse['name'], spouse['spouses'])
+          for spouse
+          in spouses
+    )}
+  ]
+
+
 def d3_html_page_generator(fathers, mothers, spouses):
   """Yield lines of an html page showing connections"""
   yield """<!DOCTYPE html>
