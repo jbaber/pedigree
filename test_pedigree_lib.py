@@ -49,11 +49,22 @@ def biglist():
     {'spouse': {'k': ['l', 'm'], 'n': ['o']}},
   ]
 
+def test_family(fathers, mothers, spouses, name_to_uid,
+    person_names):
+  f = pedigree_lib.Family(fathers, mothers, spouses)
+  assert(f.fathers == fathers)
+  assert(f.mothers == mothers)
+  assert(f.spouses == spouses)
+  received_names = f.person_names
+  assert(received_names == person_names)
+  for name in received_names:
+    assert(f.name_to_uid(name) == name_to_uid[name])
+
 def test_split_biglist(fathers, mothers, spouses, name_to_uid,
     person_names, biglist):
   assert(
       pedigree_lib.split_biglist(biglist) == \
-      (fathers, mothers, spouses, name_to_uid, person_names)
+      (fathers, mothers, spouses)
   )
 
 def test_join_biglist(fathers, mothers, spouses, biglist):
@@ -65,13 +76,15 @@ def test_join_biglist(fathers, mothers, spouses, biglist):
 def test_d3_html_page_generator(fathers, mothers, spouses):
   with open('examples/example2.html') as f:
     assert(
-      "".join(pedigree_lib.d3_html_page_generator(fathers, mothers, spouses)) == f.read()
+      "".join(pedigree_lib.d3_html_page_generator(
+          pedigree_lib.Family(fathers, mothers, spouses))) == \
+      f.read()
     )
 
 def test_dot_file_generator(fathers, mothers, spouses,
     person_names):
-  received = "".join(pedigree_lib.dot_file_generator(fathers,
-      mothers, spouses, person_names))
+  received = "".join(pedigree_lib.dot_file_generator(
+      pedigree_lib.Family(fathers, mothers, spouses)))
 
   with open('examples/example2.dot') as f:
     expected = f.read()

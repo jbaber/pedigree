@@ -38,20 +38,16 @@ def main(yaml_filename, file_basename):
     print(help_text)
     exit(1)
 
-  # Split into individual lists
-  fathers, mothers, spouses, name_to_uid, person_names = \
-      pedigree_lib.split_biglist(biglist)
+  family = pedigree_lib.biglist_to_family(biglist)
 
   # Generate d3 html page
   with open('{}.html'.format(file_basename), 'w') as f:
-    for line in pedigree_lib.d3_html_page_generator(fathers,
-        mothers, spouses):
+    for line in pedigree_lib.d3_html_page_generator(family):
       f.write(line)
 
   # Generate graphviz .dot file
   with open('{}.dot'.format(file_basename), 'w') as f:
-    for line in pedigree_lib.dot_file_generator(fathers,
-        mothers, spouses, person_names):
+    for line in pedigree_lib.dot_file_generator(family):
       f.write(line)
 
   # Generate .svg from .dot file
