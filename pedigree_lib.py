@@ -1,4 +1,5 @@
 import hashlib
+import re
 
 
 class Family:
@@ -37,6 +38,24 @@ class Family:
       if person in mother['children']:
         return mother['name']
     return None
+
+  def new_anonymous_name(self):
+    """
+    Collect all names of the form '????...'
+    and return a new string of ?'s one longer than the
+    longest
+    """
+    anons = [
+      len(anon)
+      for anon
+      in self.person_names
+      if re.match('^\?+$', anon)
+    ]
+    if anons == []:
+      longest = 0
+    else:
+      longest = max(anons)
+    return '?' * (longest + 1)
 
   def name_to_uid(self, name):
     return uid(name)

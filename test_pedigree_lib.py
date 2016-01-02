@@ -54,6 +54,9 @@ def biglist():
     {'mother': {'f': ['g', 'h'], 'i': ['j']}},
     {'spouse': {'k': ['l', 'm'], 'n': ['o']}},
   ]
+@pytest.fixture
+def family(fathers, mothers, spouses):
+  return pedigree_lib.Family(fathers, mothers, spouses)
 
 def test_family(fathers, mothers, spouses, name_to_uid,
     person_names):
@@ -94,6 +97,18 @@ def test_family_mother(fathers, mothers, spouses):
   assert(f.mother('h') == 'f')
   assert(f.mother('i') == None)
   assert(f.mother('j') == 'i')
+
+
+def test_new_anonymous_name(family):
+  assert(family.new_anonymous_name() == '?')
+  assert(family.new_anonymous_name() == '?')
+  assert(family.new_anonymous_name() == '?')
+  family.person_names.add('?')
+  assert(family.new_anonymous_name() == '??')
+  assert(family.new_anonymous_name() == '??')
+  family.person_names.add('??????')
+  assert(family.new_anonymous_name() == '???????')
+  assert(family.new_anonymous_name() == '???????')
 
 
 def test_split_biglist(fathers, mothers, spouses, name_to_uid,
