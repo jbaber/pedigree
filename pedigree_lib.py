@@ -26,6 +26,18 @@ class Family:
       for spouse in prime_spouse['spouses']:
         self.person_names.add(spouse)
 
+  def father(self, person):
+    for father in self.fathers:
+      if person in father['children']:
+        return father['name']
+    return None
+
+  def mother(self, person):
+    for mother in self.mothers:
+      if person in mother['children']:
+        return mother['name']
+    return None
+
   def name_to_uid(self, name):
     return uid(name)
 

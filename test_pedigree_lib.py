@@ -1,6 +1,12 @@
 import pedigree_lib
 import pytest
 
+"""
+fathers: a -> b, c    d -> e
+mothers: i -> j       f -> g, h
+spouses: k -> l, m    n -> o
+"""
+
 @pytest.fixture
 def fathers():
   return [
@@ -59,6 +65,36 @@ def test_family(fathers, mothers, spouses, name_to_uid,
   assert(received_names == person_names)
   for name in received_names:
     assert(f.name_to_uid(name) == name_to_uid[name])
+
+def test_family_father(fathers, mothers, spouses):
+  f = pedigree_lib.Family(fathers, mothers, spouses)
+
+  assert(f.father('a') == None)
+  assert(f.father('b') == 'a')
+  assert(f.father('c') == 'a')
+  assert(f.father('d') == None)
+  assert(f.father('e') == 'd')
+  assert(f.father('f') == None)
+  assert(f.father('g') == None)
+  assert(f.father('h') == None)
+  assert(f.father('i') == None)
+  assert(f.father('j') == None)
+
+
+def test_family_mother(fathers, mothers, spouses):
+  f = pedigree_lib.Family(fathers, mothers, spouses)
+
+  assert(f.mother('a') == None)
+  assert(f.mother('b') == None)
+  assert(f.mother('c') == None)
+  assert(f.mother('d') == None)
+  assert(f.mother('e') == None)
+  assert(f.mother('f') == None)
+  assert(f.mother('g') == 'f')
+  assert(f.mother('h') == 'f')
+  assert(f.mother('i') == None)
+  assert(f.mother('j') == 'i')
+
 
 def test_split_biglist(fathers, mothers, spouses, name_to_uid,
     person_names, biglist):
