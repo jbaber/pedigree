@@ -6,14 +6,16 @@ class Family:
   """
   Represent a family as a collection of `fathers`, `mothers`,
   and `spouses`.
+  and `spouses`.  Each member is identified as just a unique
+  name.  i.e. just a string
   """
   def __init__(self, fathers, mothers, spouses):
     self.fathers = fathers
     self.mothers = mothers
     self.spouses = spouses
+    self.person_names = set()
 
     # Record every individual in `person_names`
-    self.person_names = set()
     for father in fathers:
       self.person_names.add(father['name'])
       for child in father['children']:
