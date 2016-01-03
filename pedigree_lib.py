@@ -62,6 +62,32 @@ class Family:
       longest = max(anons)
     return '?' * (longest + 1)
 
+  def add_mother(self, child, mother):
+
+    # Error on already existing mother
+    if self.mother(child) != None:
+      raise GenealogicalError(
+          "{0} already has a mother ({1})".format(child,
+              self.mother(child)))
+
+    # Error on father and child the same
+    if child == mother:
+      raise GenealogicalError(
+          "{0} can't mother herself".format(child))
+
+    # If already a mother of someone else, add to children
+    # list
+    mom_found = False
+    for cur_mom in self.mothers:
+      if cur_mom['name'] == mother:
+        mom_found = True
+        if child not in cur_mom['children']:
+          cur_mom['children'].append(child)
+    # Otherwise, invent the mother and add the child
+    if not mom_found:
+      self.person_names.add(mother)
+      self.mothers.append({'name': mother, 'children': [child]})
+
   def add_father(self, child, father):
 
     # Error on already existing father

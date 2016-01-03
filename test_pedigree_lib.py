@@ -99,6 +99,37 @@ def test_family_add_father(family, mothers, spouses):
   assert(family.person_names == set(['a', 'b', 'c', 'd', 'e',
       'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'boo']))
 
+def test_family_add_mother(family, fathers, spouses):
+  with pytest.raises(pedigree_lib.GenealogicalError):
+    family.add_mother('g', 'boo')
+  with pytest.raises(pedigree_lib.GenealogicalError):
+    family.add_mother('h', 'boo')
+  with pytest.raises(pedigree_lib.GenealogicalError):
+    family.add_mother('j', 'boo')
+  with pytest.raises(pedigree_lib.GenealogicalError):
+    family.add_mother('a', 'a')
+  family.add_mother('f', 'boo')
+  assert(family.mothers == [
+    {'name': 'i', 'children': ['j']},
+    {'name': 'f', 'children': ['g', 'h']},
+    {'name': 'boo', 'children': ['f']}
+  ])
+  assert(family.person_names == set(['a', 'b', 'c', 'd', 'e',
+      'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'boo']))
+  assert(family.fathers == fathers)
+  assert(family.spouses == spouses)
+  family.add_mother('e', 'f')
+  assert(family.mothers == [
+    {'name': 'i', 'children': ['j']},
+    {'name': 'f', 'children': ['g', 'h', 'e']},
+    {'name': 'boo', 'children': ['f']}
+  ])
+  assert(family.fathers == fathers)
+  assert(family.spouses == spouses)
+  assert(family.person_names == set(['a', 'b', 'c', 'd', 'e',
+      'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'boo']))
+
+
 
 def test_family_father(fathers, mothers, spouses):
   f = pedigree_lib.Family(fathers, mothers, spouses)
