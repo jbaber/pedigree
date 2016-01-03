@@ -2,10 +2,13 @@ import hashlib
 import re
 
 
+class GenealogicalError(Exception):
+  pass
+
+
 class Family:
   """
   Represent a family as a collection of `fathers`, `mothers`,
-  and `spouses`.
   and `spouses`.  Each member is identified as just a unique
   name.  i.e. just a string
   """
@@ -58,6 +61,32 @@ class Family:
     else:
       longest = max(anons)
     return '?' * (longest + 1)
+
+  def add_father(self, child, father):
+
+    # Error on already existing father
+    if self.father(child) != None:
+      raise GenealogicalError(
+          "{0} already has a father ({1})".format(child,
+              self.father(child)))
+
+    # Error on father and child the same
+    if child == father:
+      raise GenealogicalError(
+          "{0} can't father himself".format(child))
+
+    # If already a father of someone else, add to children
+    # list
+    dad_found = False
+    for cur_dad in self.fathers:
+      if cur_dad['name'] == father:
+        dad_found = True
+        if child not in cur_dad['children']:
+          cur_dad['children'].append(child)
+    # Otherwise, invent the father and add the child
+    if not dad_found:
+      self.person_names.add(father)
+      self.fathers.append({'name': father, 'children': [child]})
 
   def name_to_uid(self, name):
     return uid(name)
