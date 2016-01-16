@@ -15,13 +15,15 @@ Caveats:
 Until I figure out [how to make a Python package][ugh] (or someone does it
 right in a fork), I will list dependencies here:
   - Python Packages:
-    - `pip install --user` [yaml][] [docopt][]
+    - `pip install --user` [docopt][] [networkx][] [PyYAML][]
   - Linux programs:
     - `sudo apt-get install` [graphviz][dot]
 
 [yaml]: https://en.wikipedia.org/wiki/YAML
+[PyYAML]: http://pyyaml.org
 [d3]: http://d3js.org/
 [dot]: https://en.wikipedia.org/wiki/Graphviz
 [ugh]: http://blog.ionelmc.ro/2015/02/24/the-problem-with-packaging-in-python/
 [docopt]: http://docopt.org/
 [source]: https://en.wikipedia.org/wiki/Template:Flintstones_family_tree
+[networkx]: http://networkx.github.io/documentation/latest/overview.html
