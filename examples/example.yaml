@@ -1,3 +1,21 @@
+people:
+  - "????": female
+  - "???": male
+  - Bamm-Bamm Rubble: male
+  - Barney Rubble: male
+  - Betty Jean McBricker: female
+  - Chip Rubble: male
+  - Ed Flintstone: male
+  - Edna Hardrock Flintstone: female
+  - Frederick Joseph \"Fred\" Flintstone: male
+  - Pearl Pebble Slaghoople: female
+  - Pebbles Flintstone: female
+  - Ricky Slaghoople: male
+  - Roxy Rubble: female
+  - Secret Ex-Wife: female
+  - Wilma Pebbles Slaghoople: female
+  - Zeke Flintstone: male
+---
 father:
   "???":
     - Ed Flintstone
