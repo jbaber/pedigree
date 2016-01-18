@@ -32,13 +32,11 @@ def main(yaml_filename, file_basename):
   # Open the YAML file or fail gracefully
   try:
     with open(yaml_filename) as f:
-      biglist = list(yaml.load_all(f))
+      family = pedigree_lib.yaml_to_family(f)
   except IOError, e:
     print("\n\033[91mCouldn't open {}\033[0m\n".format(e.filename))
     print(help_text)
     exit(1)
-
-  family = pedigree_lib.biglist_to_family(biglist)
 
   # Generate d3 html page
   with open('{}.html'.format(file_basename), 'w') as f:
