@@ -1,13 +1,32 @@
+people:
+  - a: male
+  - b: male
+  - c: male
+  - d: male
+  - e: male
+  - f: female
+  - g: male
+  - h: male
+  - i: female
+  - j: male
+  - k: male
+  - l: female
+  - m: female
+  - n: male
+  - o: female
+---
 father:
   a:
     - b
     - c
   d:
     - e
+    - k
 ---
 mother:
   i:
     - j
+    - c
   f:
     - g
     - h

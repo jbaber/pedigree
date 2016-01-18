@@ -1,30 +1,67 @@
 import pedigree_lib
 import pytest
-
-"""
-fathers: a -> b, c    d -> e
-mothers: i -> j       f -> g, h
-spouses: k -> l, m    n -> o
-"""
+import networkx as nx
 
 @pytest.fixture
-def fathers():
-  return [
-    {'name': 'a', 'children': ['b', 'c']},
-    {'name': 'd', 'children': ['e']},
-  ]
+def persons_dict():
+  to_return = {}
+  to_return['a'] = pedigree_lib.Person(name='a', gender="male")
+  to_return['b'] = pedigree_lib.Person(name='b', gender="female")
+  to_return['c'] = pedigree_lib.Person(name='c', gender="female")
+  to_return['d'] = pedigree_lib.Person(name='d', gender="male")
+  to_return['e'] = pedigree_lib.Person(name='e', gender="female")
+  to_return['f'] = pedigree_lib.Person(name='f', gender="female")
+  to_return['g'] = pedigree_lib.Person(name='g', gender="female")
+  to_return['h'] = pedigree_lib.Person(name='h', gender="female")
+  to_return['i'] = pedigree_lib.Person(name='i', gender="female")
+  to_return['j'] = pedigree_lib.Person(name='j', gender="female")
+  to_return['k'] = pedigree_lib.Person(name='k', gender="male")
+  to_return['l'] = pedigree_lib.Person(name='l', gender="male")
+  to_return['m'] = pedigree_lib.Person(name='m', gender="female")
+  to_return['n'] = pedigree_lib.Person(name='n', gender="female")
+  to_return['o'] = pedigree_lib.Person(name='o', gender="male")
+  return to_return
+
 @pytest.fixture
-def mothers():
-  return [
-    {'name': 'i', 'children': ['j']},
-    {'name': 'f', 'children': ['g', 'h']},
-]
+def persons(persons_dict):
+  return persons_dict.values()
+
 @pytest.fixture
-def spouses():
-  return [
-    {'name': 'k', 'spouses': ['l', 'm']},
-    {'name': 'n', 'spouses': ['o']},
-  ]
+def p():
+  p = pedigree_lib.Person(name='p', gender='female')
+
+@pytest.fixture
+def family(persons_dict):
+  """
+  fathers: a -> b, c     d -> e, k
+  mothers: i -> j, c     f -> g, h
+  spouses: k <-> l, m    n <-> o
+  NB l and m aren't spouses
+  """
+  to_return = pedigree_lib.Family()
+  to_return.add_children(persons_dict['a'],
+      [persons_dict['b'], persons_dict['c']])
+  to_return.add_child(persons_dict['d'], persons_dict['e'])
+  to_return.add_child(persons_dict['d'], persons_dict['k'])
+  to_return.add_child(persons_dict['i'], persons_dict['j'])
+  to_return.add_child(persons_dict['i'], persons_dict['c'])
+  to_return.add_children(persons_dict['f'], [persons_dict['g'],
+      persons_dict['h']])
+  to_return.add_spouses(persons_dict['k'], [persons_dict['l'],
+      persons_dict['m']])
+  to_return.add_spouse(persons_dict['n'], persons_dict['o'])
+  return to_return
+
+@pytest.fixture
+def fathers(persons_dict):
+  return [persons_dict['a'], persons_dict['d']]
+@pytest.fixture
+def mothers(persons_dict):
+  return [persons_dict['i'], persons_dict['f']]
+@pytest.fixture
+def spouses(persons_dict):
+  return [persons_dict['k'], persons_dict['l'], persons_dict['m'],
+      persons_dict['n'], persons_dict['o']]
 @pytest.fixture
 def name_to_uid():
   return {'a': 'personhash0cc175b9c0f1b6a831c399e269772661',
@@ -44,162 +81,278 @@ def name_to_uid():
      'o': 'personhashd95679752134a2d9eb61dbd7b91c4bcc'
     }
 @pytest.fixture
-def person_names():
-  return set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-      'k', 'l', 'm', 'n', 'o'])
+def names():
+  return ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+      'k', 'l', 'm', 'n', 'o']
 @pytest.fixture
 def biglist():
   return [
-    {'father': {'a': ['b', 'c'], 'd': ['e']}},
-    {'mother': {'f': ['g', 'h'], 'i': ['j']}},
+    {'father': {'a': ['b', 'c'], 'd': ['e', 'k']}},
+    {'mother': {'f': ['g', 'h'], 'i': ['j', 'c']}},
     {'spouse': {'k': ['l', 'm'], 'n': ['o']}},
   ]
-@pytest.fixture
-def family(fathers, mothers, spouses):
-  return pedigree_lib.Family(fathers, mothers, spouses)
 
-def test_family(fathers, mothers, spouses, name_to_uid,
-    person_names):
-  f = pedigree_lib.Family(fathers, mothers, spouses)
-  assert(f.fathers == fathers)
-  assert(f.mothers == mothers)
-  assert(f.spouses == spouses)
-  received_names = f.person_names
-  assert(received_names == person_names)
-  for name in received_names:
-    assert(f.name_to_uid(name) == name_to_uid[name])
 
-def test_family_add_father(family, mothers, spouses):
+def test_family(family, fathers, mothers, spouses,
+    names):
+  assert(family.fathers() == set(fathers))
+  assert(family.mothers() == set(mothers))
+  assert(family.spouses() == set(spouses))
+  assert(set(family.names()) == set(names))
+
+def test_name_to_uid(names, name_to_uid):
+  for name in names:
+    assert(pedigree_lib.name_to_uid(name) == name_to_uid[name])
+
+def test_family_children(family, persons_dict):
+  assert set(family.children(persons_dict['a'])) == \
+      set([persons_dict['b'], persons_dict['c']])
+  assert set(family.children(persons_dict['d'])) == \
+      set([persons_dict['e'], persons_dict['k']])
+  assert set(family.children(persons_dict['i'])) == \
+      set([persons_dict['j'], persons_dict['c']])
+  assert set(family.children(persons_dict['f'])) == \
+      set([persons_dict['g'], persons_dict['h']])
+  for name in ['b', 'c', 'e', 'k', 'j', 'c', 'g', 'h', 'k',
+      'l', 'm', 'n', 'o']:
+    assert family.children(persons_dict[name]) == []
+
+def test_family_add_full_sibling(family, persons, fathers,
+    mothers, persons_dict, names):
+
+  # Add one sibling
+  p = pedigree_lib.Person(name='p', gender='female')
+  family.add_full_sibling(persons_dict['b'], p)
+
+  # Becomes 
+  # fathers: a -> b, c, p  d -> e, k
+  # mothers: i -> j, c     f -> g, h   ? -> b, p
+  # spouses: k <-> l, m    n <-> o
+  mom = pedigree_lib.Person(name='?', gender="female")
+
+  assert set(family.persons()) == set(persons + [p, mom])
+  assert set(family.fathers()) == set(fathers)
+  assert set(family.mothers()) == set(mothers + [mom])
+  assert set(family.children(persons_dict['a'])) == \
+      set([persons_dict['b'], persons_dict['c'], p])
+  assert set(family.children(mom)) == set([persons_dict['b'], p])
+
+  # Leaves spouses alone
+  family.spouses == spouses
+
+  # Add another sibling
+  q = pedigree_lib.Person(name='q', gender="male")
+  family.add_full_sibling(persons_dict['j'], q)
+
+  # Becomes 
+  # fathers: a -> b, c, p  d -> e, k  ?? -> j, q
+  # mothers: i -> j, c, q  f -> g, h   ? -> b, p
+  # spouses: k <-> l, m    n <-> o
+  dad = pedigree_lib.Person(name='??', gender="male")
+  
+  # Creates the sibling and a father
+  assert set(family.persons()) == \
+      set(persons + [p, q, mom, dad])
+  assert set(family.fathers()) == set(fathers + [dad])
+  assert set(family.mothers()) == set(mothers + [mom])
+  assert set(family.children(persons_dict['a'])) == \
+      set([persons_dict['b'], persons_dict['c'], p])
+  assert set(family.children(persons_dict['i'])) == \
+      set([persons_dict['j'], persons_dict['c'], q])
+  assert set(family.children(mom)) == set([persons_dict['b'], p])
+  assert set(family.children(dad)) == set([persons_dict['j'], q])
+
+  # Add a full sibling to an existing nuclear family
+  r = pedigree_lib.Person(name='r', gender='female')
+  family.add_full_sibling(persons_dict['c'], r)
+
+  # Becomes 
+  # fathers: a -> b, c, p, r  d -> e, k  ?? -> j, q
+  # mothers: i -> j, c, q, r  f -> g, h   ? -> b, p
+  # spouses: k <-> l, m       n <-> o
+  assert set(family.persons()) == \
+      set(persons + [p, q, r, mom, dad])
+  assert set(family.fathers()) == set(fathers + [dad])
+  assert set(family.mothers()) == set(mothers + [mom])
+  assert set(family.children(persons_dict['a'])) == \
+      set([persons_dict['b'], persons_dict['c'], p, r])
+  assert set(family.children(persons_dict['i'])) == \
+      set([persons_dict['j'], persons_dict['c'], q, r])
+  assert set(family.children(mom)) == set([persons_dict['b'], p])
+  assert set(family.children(dad)) == set([persons_dict['j'], q])
+
+def test_family_add_father(family, fathers, mothers, persons,
+    spouses, persons_dict):
+  boo = pedigree_lib.Person(name='boo', gender='male')
   with pytest.raises(pedigree_lib.GenealogicalError):
-    family.add_father('b', 'boo')
+    family.add_father(persons_dict['b'], boo)
   with pytest.raises(pedigree_lib.GenealogicalError):
-    family.add_father('c', 'boo')
+    family.add_father(persons_dict['c'], boo)
   with pytest.raises(pedigree_lib.GenealogicalError):
-    family.add_father('e', 'boo')
+    family.add_father(persons_dict['e'], boo)
   with pytest.raises(pedigree_lib.GenealogicalError):
-    family.add_father('i', 'i')
-  family.add_father('a', 'boo')
-  assert(family.fathers == [
-    {'name': 'a', 'children': ['b', 'c']},
-    {'name': 'd', 'children': ['e']},
-    {'name': 'boo', 'children': ['a']}
-  ])
-  assert(family.person_names == set(['a', 'b', 'c', 'd', 'e',
-      'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'boo']))
-  assert(family.mothers == mothers)
-  assert(family.spouses == spouses)
-  family.add_father('j', 'a')
-  assert(family.fathers == [
-    {'name': 'a', 'children': ['b', 'c', 'j']},
-    {'name': 'd', 'children': ['e']},
-    {'name': 'boo', 'children': ['a']}
-  ])
-  assert(family.mothers == mothers)
-  assert(family.spouses == spouses)
-  assert(family.person_names == set(['a', 'b', 'c', 'd', 'e',
-      'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'boo']))
+    family.add_father(persons_dict['i'], persons_dict['i'])
 
-def test_family_add_mother(family, fathers, spouses):
+  family.add_father(persons_dict['a'], boo)
+  # Becomes 
+  # fathers: a -> b, c     d -> e, k    boo -> a
+  # mothers: i -> j, c     f -> g, h
+  # spouses: k <-> l, m    n <-> o
+  assert set(family.fathers()) == set(fathers + [boo])
+  assert set(family.persons()) == set(persons + [boo])
+  assert set(family.mothers()) == set(mothers)
+  assert set(family.spouses()) == set(spouses)
+
+  family.add_father(persons_dict['j'], persons_dict['a'])
+  # Becomes 
+  # fathers: a -> b, c, j  d -> e, k    boo -> a
+  # mothers: i -> j, c     f -> g, h
+  # spouses: k <-> l, m    n <-> o
+  assert set(family.fathers()) == set(fathers + [boo])
+  assert set(family.persons()) == set(persons + [boo])
+  assert set(family.mothers()) == set(mothers)
+  assert set(family.spouses()) == set(spouses)
+  assert set(family.children(persons_dict['a'])) == \
+      set([persons_dict['b'], persons_dict['c'], persons_dict['j']])
+  assert set(family.children(persons_dict['i'])) == \
+      set([persons_dict['c'], persons_dict['j']])
+
+def test_family_add_mother(family, fathers, mothers, spouses,
+    persons_dict, persons):
+  boo = pedigree_lib.Person(name='boo', gender='female')
   with pytest.raises(pedigree_lib.GenealogicalError):
-    family.add_mother('g', 'boo')
+    family.add_mother(persons_dict['g'], boo)
   with pytest.raises(pedigree_lib.GenealogicalError):
-    family.add_mother('h', 'boo')
+    family.add_mother(persons_dict['h'], boo)
   with pytest.raises(pedigree_lib.GenealogicalError):
-    family.add_mother('j', 'boo')
+    family.add_mother(persons_dict['j'], boo)
   with pytest.raises(pedigree_lib.GenealogicalError):
-    family.add_mother('a', 'a')
-  family.add_mother('f', 'boo')
-  assert(family.mothers == [
-    {'name': 'i', 'children': ['j']},
-    {'name': 'f', 'children': ['g', 'h']},
-    {'name': 'boo', 'children': ['f']}
-  ])
-  assert(family.person_names == set(['a', 'b', 'c', 'd', 'e',
-      'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'boo']))
-  assert(family.fathers == fathers)
-  assert(family.spouses == spouses)
-  family.add_mother('e', 'f')
-  assert(family.mothers == [
-    {'name': 'i', 'children': ['j']},
-    {'name': 'f', 'children': ['g', 'h', 'e']},
-    {'name': 'boo', 'children': ['f']}
-  ])
-  assert(family.fathers == fathers)
-  assert(family.spouses == spouses)
-  assert(family.person_names == set(['a', 'b', 'c', 'd', 'e',
-      'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'boo']))
+    family.add_mother(persons_dict['a'], persons_dict['a'])
+
+  family.add_mother(persons_dict['f'], boo)
+  # Becomes
+  # fathers: a -> b, c     d -> e, k
+  # mothers: i -> j, c     f -> g, h  boo -> f
+  # spouses: k <-> l, m    n <-> o
+  assert set(family.mothers()) == set(mothers + [boo])
+  assert set(family.persons()) == set(persons + [boo])
+  assert set(family.fathers()) == set(fathers)
+  assert set(family.spouses()) == set(spouses)
+
+  family.add_mother(persons_dict['e'], persons_dict['i'])
+  # Becomes
+  # fathers: a -> b, c      d -> e, k
+  # mothers: i -> j, c, e   f -> g, h  boo -> f
+  # spouses: k <-> l, m     n <-> o
+  assert set(family.mothers()) == set(mothers + [boo])
+  assert set(family.persons()) == set(persons + [boo])
+  assert set(family.fathers()) == set(fathers)
+  assert set(family.spouses()) == set(spouses)
+  assert set(family.children(persons_dict['i'])) == \
+      set([persons_dict['j'], persons_dict['c'], persons_dict['e']])
+  assert set(family.children(persons_dict['d'])) == \
+      set([persons_dict['e'], persons_dict['k']])
 
 
+def test_family_add_child(family, persons, persons_dict,
+    fathers, mothers, p):
+  # p = pedigree_lib.Person(name='p', gender='female')
+  family.add_child(persons_dict['a'], p)
+  # Becomes
+  # fathers: a -> b, c, p  d -> e, k
+  # mothers: i -> j, c     f -> g, h
+  # spouses: k <-> l, m    n <-> o
+  assert set(family.persons()) == set(persons + [p])
+  assert set(family.fathers()) == set(fathers)
+  assert set(family.mothers()) == set(mothers)
+  assert set(family.children(persons_dict['a'])) == \
+      set([persons_dict['b'], persons_dict['c'], p])
 
-def test_family_father(fathers, mothers, spouses):
-  f = pedigree_lib.Family(fathers, mothers, spouses)
 
-  assert(f.father('a') == None)
-  assert(f.father('b') == 'a')
-  assert(f.father('c') == 'a')
-  assert(f.father('d') == None)
-  assert(f.father('e') == 'd')
-  assert(f.father('f') == None)
-  assert(f.father('g') == None)
-  assert(f.father('h') == None)
-  assert(f.father('i') == None)
-  assert(f.father('j') == None)
+def test_family_father(family, persons, persons_dict):
+  assert family.father(persons_dict['a']) == None
+  assert family.father(persons_dict['b']) == persons_dict['a']
+  assert family.father(persons_dict['c']) == persons_dict['a']
+  assert family.father(persons_dict['d']) == None
+  assert family.father(persons_dict['e']) == persons_dict['d']
+  assert family.father(persons_dict['f']) == None
+  assert family.father(persons_dict['g']) == None
+  assert family.father(persons_dict['h']) == None
+  assert family.father(persons_dict['i']) == None
+  assert family.father(persons_dict['j']) == None
 
 
-def test_family_mother(fathers, mothers, spouses):
-  f = pedigree_lib.Family(fathers, mothers, spouses)
+def test_family_mother(family, persons, persons_dict):
+  assert family.mother(persons_dict['a']) == None
+  assert family.mother(persons_dict['b']) == None
+  assert family.mother(persons_dict['c']) == persons_dict['i']
+  assert family.mother(persons_dict['d']) == None
+  assert family.mother(persons_dict['e']) == None
+  assert family.mother(persons_dict['f']) == None
+  assert family.mother(persons_dict['g']) == persons_dict['f']
+  assert family.mother(persons_dict['h']) == persons_dict['f']
+  assert family.mother(persons_dict['i']) == None
+  assert family.mother(persons_dict['j']) == persons_dict['i']
 
-  assert(f.mother('a') == None)
-  assert(f.mother('b') == None)
-  assert(f.mother('c') == None)
-  assert(f.mother('d') == None)
-  assert(f.mother('e') == None)
-  assert(f.mother('f') == None)
-  assert(f.mother('g') == 'f')
-  assert(f.mother('h') == 'f')
-  assert(f.mother('i') == None)
-  assert(f.mother('j') == 'i')
+def test_family_all_spouses(family, persons, persons_dict):
+  assert family.all_spouses(persons_dict['a']) == []
+  assert family.all_spouses(persons_dict['b']) == []
+  assert family.all_spouses(persons_dict['c']) == []
+  assert family.all_spouses(persons_dict['d']) == []
+  assert family.all_spouses(persons_dict['e']) == []
+  assert family.all_spouses(persons_dict['f']) == []
+  assert family.all_spouses(persons_dict['g']) == []
+  assert family.all_spouses(persons_dict['h']) == []
+  assert family.all_spouses(persons_dict['i']) == []
+  assert family.all_spouses(persons_dict['j']) == []
+  assert set(family.all_spouses(persons_dict['k'])) == set([
+      persons_dict['l'], persons_dict['m']])
+  assert family.all_spouses(persons_dict['l']) == \
+      [persons_dict['k']]
+  assert family.all_spouses(persons_dict['m']) == \
+      [persons_dict['k']]
+  assert family.all_spouses(persons_dict['n']) == \
+      [persons_dict['o']]
+  assert family.all_spouses(persons_dict['o']) == \
+      [persons_dict['n']]
+
 
 
 def test_new_anonymous_name(family):
   assert(family.new_anonymous_name() == '?')
   assert(family.new_anonymous_name() == '?')
   assert(family.new_anonymous_name() == '?')
-  family.person_names.add('?')
+  p = pedigree_lib.Person(name='?', gender='female')
+  family.add_person(p)
   assert(family.new_anonymous_name() == '??')
   assert(family.new_anonymous_name() == '??')
-  family.person_names.add('??????')
+  q = pedigree_lib.Person(name='??????', gender='female')
+  family.add_person(q)
   assert(family.new_anonymous_name() == '???????')
   assert(family.new_anonymous_name() == '???????')
 
 
-def test_split_biglist(fathers, mothers, spouses, name_to_uid,
-    person_names, biglist):
-  assert(
-      pedigree_lib.split_biglist(biglist) == \
-      (fathers, mothers, spouses)
-  )
+def test_yaml_to_family(family):
+  with open('examples/example2.yaml') as input_file:
+    assert pedigree_lib.yaml_to_family(input_file.read()) == \
+        family
 
-def test_join_biglist(fathers, mothers, spouses, biglist):
-  assert(
-      pedigree_lib.join_biglist(fathers, mothers, spouses) == \
-      biglist
-  )
 
-def test_d3_html_page_generator(fathers, mothers, spouses):
-  with open('examples/example2.html') as f:
-    assert(
-      "".join(pedigree_lib.d3_html_page_generator(
-          pedigree_lib.Family(fathers, mothers, spouses))) == \
-      f.read()
-    )
+def test_d3_html_page_generator():
+  with open('examples/example2.yaml') as input_file:
+    with open('examples/example2.html') as output_file:
+      assert(
+        "\n".join(pedigree_lib.d3_html_page_generator(
+          pedigree_lib.yaml_to_family(input_file))) == \
+              output_file.read()
+      )
 
-def test_dot_file_generator(fathers, mothers, spouses,
-    person_names):
-  received = "".join(pedigree_lib.dot_file_generator(
-      pedigree_lib.Family(fathers, mothers, spouses)))
-
-  with open('examples/example2.dot') as f:
-    expected = f.read()
-
-  assert(received == expected)
+def test_dot_file_generator():
+  with open('examples/example2.yaml') as input_file:
+    with open('examples/example2.dot') as output_file:
+      with open('/tmp/boo.dot', 'w') as f:
+        f.write("\n".join(pedigree_lib.dot_file_generator(
+          pedigree_lib.yaml_to_family(input_file))))
+      # received = "\n".join(pedigree_lib.dot_file_generator(
+      #     pedigree_lib.yaml_to_family(input_file)))
+      # assert(received == output_file.read())

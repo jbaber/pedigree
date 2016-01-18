@@ -14,20 +14,18 @@ digraph family_tree {
   personhash2db95e8e1a9267b7a1188556b2013b33 [label="l", shape="box"];
   personhashd95679752134a2d9eb61dbd7b91c4bcc [label="o", shape="box"];
   personhash7b8b965ad4bca0e41ab51de7b31363a1 [label="n", shape="box"];
-
-
-  personhash0cc175b9c0f1b6a831c399e269772661 -> personhash92eb5ffee6ae2fec3ad71c777531578f [color=blue];
   personhash0cc175b9c0f1b6a831c399e269772661 -> personhash4a8a08f09d37b73795649038408b5f33 [color=blue];
+  personhash0cc175b9c0f1b6a831c399e269772661 -> personhash92eb5ffee6ae2fec3ad71c777531578f [color=blue];
+  personhash8277e0910d750195b448797616e091ad -> personhash8ce4b16b22b58894aa86c421e8759df3 [color=blue];
   personhash8277e0910d750195b448797616e091ad -> personhashe1671797c52e15f763380b45e841ec32 [color=blue];
-
-
+  personhash865c0c0b4ab0e063e5caa3387c1a8741 -> personhash4a8a08f09d37b73795649038408b5f33 [color=orange];
   personhash865c0c0b4ab0e063e5caa3387c1a8741 -> personhash363b122c528f54df4a0446b6bab05515 [color=orange];
-  personhash8fa14cdd754f91cc6554c9e71929cce7 -> personhashb2f5ff47436671b6e533d8dc3614845d [color=orange];
   personhash8fa14cdd754f91cc6554c9e71929cce7 -> personhash2510c39011c5be704182423e3a695e91 [color=orange];
-
-
-  personhash8ce4b16b22b58894aa86c421e8759df3 -> personhash2db95e8e1a9267b7a1188556b2013b33 [style="dotted"];
+  personhash8fa14cdd754f91cc6554c9e71929cce7 -> personhashb2f5ff47436671b6e533d8dc3614845d [color=orange];
   personhash8ce4b16b22b58894aa86c421e8759df3 -> personhash6f8f57715090da2632453988d9a1501b [style="dotted"];
+  personhash8ce4b16b22b58894aa86c421e8759df3 -> personhash2db95e8e1a9267b7a1188556b2013b33 [style="dotted"];
+  personhash6f8f57715090da2632453988d9a1501b -> personhash8ce4b16b22b58894aa86c421e8759df3 [style="dotted"];
+  personhash2db95e8e1a9267b7a1188556b2013b33 -> personhash8ce4b16b22b58894aa86c421e8759df3 [style="dotted"];
+  personhashd95679752134a2d9eb61dbd7b91c4bcc -> personhash7b8b965ad4bca0e41ab51de7b31363a1 [style="dotted"];
   personhash7b8b965ad4bca0e41ab51de7b31363a1 -> personhashd95679752134a2d9eb61dbd7b91c4bcc [style="dotted"];
-
 }

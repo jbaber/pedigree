@@ -1,48 +1,182 @@
 import hashlib
 import re
+import networkx as nx
+import yaml
 
+"""
+Family is kept as a "directed multigraph" with Persons as
+nodes.  Nodes can have more than one directed edge between
+them.  Edges have a relation_type attribute that takes one
+of the values "mother", "father", "spouse"
+
+Persons have the attributes "gender" and "other" to be
+filled with anything else useful to the person.
+"""
+
+class GenderError(Exception):
+  pass
 
 class GenealogicalError(Exception):
   pass
 
+class PersonExistsError(Exception):
+  pass
 
-class Family:
+
+class Person(object):
   """
-  Represent a family as a collection of `fathers`, `mothers`,
-  and `spouses`.  Each member is identified as just a unique
-  name.  i.e. just a string
+  Persons are uniquely identified by their name string.
   """
-  def __init__(self, fathers, mothers, spouses):
-    self.fathers = fathers
-    self.mothers = mothers
-    self.spouses = spouses
-    self.person_names = set()
+  def __init__(self, name, gender):
+    self.name = name
+    self.gender = gender
 
-    # Record every individual in `person_names`
-    for father in fathers:
-      self.person_names.add(father['name'])
-      for child in father['children']:
-        self.person_names.add(child)
-    for mother in mothers:
-      self.person_names.add(mother['name'])
-      for child in mother['children']:
-        self.person_names.add(child)
-    for prime_spouse in spouses:
-      self.person_names.add(prime_spouse['name'])
-      for spouse in prime_spouse['spouses']:
-        self.person_names.add(spouse)
+  # Only care about the name
+  def __eq__(self, other):
+    # If `other` doesn't even have a name, then no chance.
+    if not hasattr(other, 'name'):
+      return False
+    return self.name == other.name
 
-  def father(self, person):
-    for father in self.fathers:
-      if person in father['children']:
-        return father['name']
-    return None
+  def __ne__(self, other):
+    # If `other` doesn't even have a name, they're guaranteed
+    # do be different.
+    if not hasattr(other, 'name'):
+      return True
+    return (self.name != other.name)
 
-  def mother(self, person):
-    for mother in self.mothers:
-      if person in mother['children']:
-        return mother['name']
-    return None
+  # Really, only care about the name.  Persons with
+  # different genders end up with the same hash if
+  # they have the same name.
+  def __hash__(self):
+    return hash(self.name)
+
+  def __str__(self):
+    return self.name
+
+  def __repr__(self):
+    return "{} ({})".format(self.name, self.gender)
+
+  def add_children(self, children):
+
+    # Do nothing if any of the children are already present
+    for child in children:
+      if child in self.children:
+        raise PersonExistsError(
+            "{0} already a child of {1}".format(child, self)
+        )
+
+    for child in children:
+      self.children.append(child)
+
+  def add_child(self, child):
+    self.add_children([child])
+
+  def add_spouses(self, spouses):
+
+    # Do nothing if any of the spouses are already present
+    for spouse in spouses:
+      if spouse in self.spouses:
+        raise PersonExistsError(
+            "{0} already a spouse of {1}".format(spouse, self)
+        )
+
+    for spouse in spouses:
+      self.spouses.append(spouse)
+
+
+
+class Family(object):
+  """
+  Family is kept as a "directed multigraph" with Persons as
+  nodes.  Nodes can have more than one directed edge between
+  them.  Edges have a relation_type attribute that takes one
+  of the values "mother", "father", "spouse"
+
+  Represent a family as a collection of Persons each with a
+  unique .name property and connections between them.
+  """
+  def __init__(self, persons=None):
+    # Full directed multipgraph of Persons with mother, father,
+    # and spouse as all the relation_type's.
+    self.graph = nx.MultiDiGraph()
+    if persons == None:
+      self.graph.add_nodes_from([])
+    else:
+      self.graph.add_nodes_from(persons)
+
+    # Interesting data about individuals is kept in the
+    # other_data dict, keyed by Persons.
+    self.other_data = {}
+
+  def __eq__(self, other):
+    return (
+      self.graph.nodes() == other.graph.nodes() and \
+      self.graph.edges(data=True) == other.graph.edges(data=True)
+    )
+
+  def __ne__(self, other):
+    return self != other
+
+  def add_person(self, person):
+    self.graph.add_node(person)
+
+  def persons(self):
+    return self.graph.nodes()
+
+  def names(self):
+    return [person.name for person in self.persons()]
+
+  def add_child(self, parent, child):
+    # Does nothing if `parent` already present
+    self.graph.add_node(parent)
+    relation_type = None
+    if parent.gender == "male":
+      relation_type = "father"
+    elif parent.gender == "female":
+      relation_type = "mother"
+    else:
+      raise GenderError("Without a gender on {}, can't tell"
+          " whether she should be added "
+          "as a mother or father.".format(parent))
+
+    self.graph.add_edge(parent, child,
+        relation_type=relation_type)
+
+  def add_children(self, parent, children):
+    for child in children:
+      self.add_child(parent, child)
+
+  def add_spouse(self, person, spouse):
+    # Does nothing if `parent` already present
+    self.graph.add_node(person)
+    self.graph.add_edge(person, spouse, relation_type="spouse")
+    self.graph.add_edge(spouse, person, relation_type="spouse")
+
+  def add_spouses(self, person, spouses):
+    for spouse in spouses:
+      self.add_spouse(person, spouse)
+
+  def add_full_sibling(self, person, sibling):
+    if person not in self.persons():
+      raise PersonExistsError(
+          "{} isn't in the family yet.".format(person))
+    # Does nothing if `sibling` already present
+    self.graph.add_node(sibling)
+
+    # Add either parent if they don't exist
+    if not self.father(person):
+      self.add_father(person,
+          Person(name=self.new_anonymous_name(), gender="male"))
+    if not self.mother(person):
+      self.add_mother(person,
+          Person(name=self.new_anonymous_name(), gender="female"))
+
+    self.graph.add_edge(self.father(person), sibling,
+        relation_type="father")
+    self.graph.add_edge(self.mother(person), sibling,
+        relation_type="mother")
+
 
   def new_anonymous_name(self):
     """
@@ -50,16 +184,16 @@ class Family:
     and return a new string of ?'s one longer than the
     longest
     """
-    anons = [
+    anon_lengths = [
       len(anon)
       for anon
-      in self.person_names
+      in self.names()
       if re.match('^\?+$', anon)
     ]
-    if anons == []:
+    if anon_lengths == []:
       longest = 0
     else:
-      longest = max(anons)
+      longest = max(anon_lengths)
     return '?' * (longest + 1)
 
   def add_mother(self, child, mother):
@@ -70,23 +204,29 @@ class Family:
           "{0} already has a mother ({1})".format(child,
               self.mother(child)))
 
-    # Error on father and child the same
+    # Error on mother and child the same
     if child == mother:
       raise GenealogicalError(
           "{0} can't mother herself".format(child))
 
+    # Error on non-female mother
+    if mother.gender != "female":
+      raise GenderError("{0} isn't female, so can't " \
+          "be a mother.".format(mother))
+
     # If already a mother of someone else, add to children
     # list
     mom_found = False
-    for cur_mom in self.mothers:
-      if cur_mom['name'] == mother:
+    for cur_mom in self.mothers():
+      if cur_mom == mother:
         mom_found = True
-        if child not in cur_mom['children']:
-          cur_mom['children'].append(child)
-    # Otherwise, invent the mother and add the child
+        if child not in self.children(cur_mom):
+          self.add_child(cur_mom, child)
+
+    # Otherwise, add the mother and add the child
     if not mom_found:
-      self.person_names.add(mother)
-      self.mothers.append({'name': mother, 'children': [child]})
+      self.add_person(mother)
+      self.add_child(mother, child)
 
   def add_father(self, child, father):
 
@@ -101,34 +241,83 @@ class Family:
       raise GenealogicalError(
           "{0} can't father himself".format(child))
 
+    # Error on non-male father
+    if father.gender != "male":
+      raise GenderError("{0} isn't male, so can't " \
+          "be a father.".format(father))
+
     # If already a father of someone else, add to children
     # list
     dad_found = False
-    for cur_dad in self.fathers:
-      if cur_dad['name'] == father:
+    for cur_dad in self.fathers():
+      if cur_dad == father:
         dad_found = True
-        if child not in cur_dad['children']:
-          cur_dad['children'].append(child)
-    # Otherwise, invent the father and add the child
+        if child not in self.children(cur_dad):
+          self.add_child(cur_dad, child)
+
+    # Otherwise, add the father and add the child
     if not dad_found:
-      self.person_names.add(father)
-      self.fathers.append({'name': father, 'children': [child]})
-
-  def name_to_uid(self, name):
-    return uid(name)
+      self.add_person(father)
+      self.add_child(father, child)
 
 
-def uid(name):
+  def children(self, parent):
+    if parent not in self.persons():
+      raise PersonExistsError(
+          "{} isn't in the family yet.".format(parent))
+
+    return [
+      edge[1]
+      for edge in self.graph.edges(data=True)
+      if (edge[2]['relation_type'] == "father" or \
+          edge[2]['relation_type'] == "mother") and \
+         edge[0] == parent
+    ]
+
+  def fathers(self):
+    return set([
+        edge[0]
+        for edge in self.graph.edges(data=True)
+        if edge[2]['relation_type'] == "father"
+    ])
+  def mothers(self):
+    return set([
+        edge[0]
+        for edge in self.graph.edges(data=True)
+        if edge[2]['relation_type'] == "mother"
+    ])
+  def spouses(self):
+    return set([
+        edge[0]
+        for edge in self.graph.edges(data=True)
+        if edge[2]['relation_type'] == "spouse"
+    ])
+  def father(self, person):
+    for edge in self.graph.edges(data=True):
+      if edge[2]['relation_type'] == "father" and \
+          edge[1] == person:
+        return edge[0]
+    return None
+  def mother(self, person):
+    for edge in self.graph.edges(data=True):
+      if edge[2]['relation_type'] == "mother" and \
+          edge[1] == person:
+        return edge[0]
+    return None
+  def all_spouses(self, person):
+    cur_spouses = []
+    for edge in self.graph.edges(data=True):
+      if edge[2]['relation_type'] == "spouse" and \
+        edge[1] == person:
+          cur_spouses.append(edge[0])
+    return cur_spouses
+  def persons(self):
+    return self.graph.nodes()
+
+
+def name_to_uid(name):
   """Give a unique id to any name"""
   return "personhash" + hashlib.md5(name).hexdigest()
-
-
-def biglist_to_family(biglist):
-  """
-  Take `biglist` as would be returned from a .yaml file
-  and return corresponding Family instance
-  """
-  return Family(*split_biglist(biglist))
 
 
 def split_biglist(biglist):
@@ -184,44 +373,55 @@ def split_biglist(biglist):
   return fathers, mothers, spouses
 
 
-def join_biglist(fathers, mothers, spouses):
+def yaml_to_family(yaml_file):
+  family = Family()
+
+  people, fathers, mothers, spouses = yaml.load_all(yaml_file)
+  people  = people['people']
+  fathers = fathers['father']
+  mothers = mothers['mother']
+  spouses = spouses['spouse']
+
+  persons_dict = {}
+  for person in people:
+    for name, gender in person.iteritems():
+      cur_person = Person(name=name, gender=gender)
+      persons_dict[name] = cur_person
+      family.add_person(cur_person)
+
+  for father in fathers:
+    father_person = persons_dict[father]
+    children = [
+        persons_dict[child_name]
+        for child_name in fathers[father]
+    ]
+    family.add_children(father_person, children)
+
+  for mother in mothers:
+    mother_person = persons_dict[mother]
+    children = [
+        persons_dict[child_name]
+        for child_name in mothers[mother]
+    ]
+    family.add_children(mother_person, children)
+
+  for spouse in spouses:
+    spouse_person = persons_dict[spouse]
+    spouse_primes = [
+        persons_dict[spouse_name]
+        for spouse_name in spouses[spouse]
+    ]
+    family.add_spouses(spouse_person, spouse_primes)
+
+  return family
+
+
+def biglist_to_family(biglist):
   """
-  This function should be the inverse of `split_biglist`.
-  
-  e.g.
-
-      fathers = [{'name': 'a', 'children': ['b', 'c']},
-      {'name': 'd', 'children': ['e']},
-      ]
-      mothers = [{'name': 'i', 'children': ['j']},
-      {'name': 'f', 'children': ['g', 'h']},
-      ]
-      spouses = [{'name': 'k', 'spouses': ['l', 'm']},
-      {'name': 'n', 'spouses': ['o']},
-      ]
-
-  should yield
-      [                                            \
-        {'father': {'a': ['b', 'c'], 'd': ['e']}}, \
-        {'mother': {'f': ['g', 'h'], 'i': ['j']}}, \
-        {'spouse': {'k': ['l', 'm'], 'n': ['o']}}, \
-      ]
-
+  Take `biglist` as would be returned from a .yaml file
+  and return corresponding Family instance
   """
-  return [
-    {'father': dict( (father['name'], father['children'])
-          for father
-          in fathers
-    )},
-    {'mother': dict( (mother['name'], mother['children'])
-          for mother
-          in mothers
-    )},
-    {'spouse': dict( (spouse['name'], spouse['spouses'])
-          for spouse
-          in spouses
-    )}
-  ]
+  return Family(*split_biglist(biglist))
 
 
 def d3_html_page_generator(family):
@@ -276,26 +476,25 @@ def d3_html_page_generator(family):
   function addRelation(sourcey, targety, relationy, listy) {
     listy.push({source: sourcey, target: targety, type: relationy})
   }
-  family = {
-  """
-  yield '"father": {\n'
-  for father in family.fathers:
-    yield '"{}": [\n'.format(father['name'])
-    for child in father['children']:
+  family = {"""
+  yield '  "father": {'
+  for father in family.fathers():
+    yield '"{}": ['.format(father.name)
+    for child in family.children(father):
       yield '"{}",\n'.format(child)
     yield '],\n'
   yield '},\n'
   yield '"mother": {\n'
-  for mother in family.mothers:
-    yield '"{}": [\n'.format(mother['name'])
-    for child in mother['children']:
+  for mother in family.mothers():
+    yield '"{}": [\n'.format(mother.name)
+    for child in family.children(mother):
       yield '"{}",\n'.format(child)
     yield '],\n'
   yield '},\n'
   yield '"spouse": {\n'
-  for prime_spouse in family.spouses:
-    yield '"{}": [\n'.format(prime_spouse['name'])
-    for spouse in prime_spouse['spouses']:
+  for prime_spouse in family.spouses():
+    yield '"{}": [\n'.format(prime_spouse.name)
+    for spouse in family.all_spouses(prime_spouse):
       yield '"{}",\n'.format(spouse)
     yield '],\n'
   yield '}\n'
@@ -399,30 +598,27 @@ function transform(d) {
 def dot_file_generator(family):
   """Generate a graphviz .dot file"""
 
-  yield "digraph family_tree {\n"
+  yield "digraph family_tree {"
 
   # Set up the nodes
-  for person_name in family.person_names:
-    yield '  {} [label="{}", shape="box"];\n'.format(
-        uid(person_name), person_name)
+  for person_name in family.names():
+    yield '  {} [label="{}", shape="box"];'.format(
+        name_to_uid(person_name), person_name)
 
   # Set up the connections
-  yield "\n\n"
-  for father in family.fathers:
-    for child in father['children']:
-      yield '  {} -> {} [color=blue];\n'.format(
-          uid(father['name']), 
-          uid(child))
-  yield "\n\n"
-  for mother in family.mothers:
-    for child in mother['children']:
-      yield '  {} -> {} [color=orange];\n'.format(
-          uid(mother['name']),
-          uid(child))
-  yield "\n\n"
-  for prime_spouse in family.spouses:
-    for spouse in prime_spouse['spouses']:
-      yield '  {} -> {} [style="dotted"];\n'.format(
-          uid(prime_spouse['name']),
-          uid(spouse))
-  yield "\n}\n"
+  for father in family.fathers():
+    for child in family.children(father):
+      yield '  {} -> {} [color=blue];'.format(
+          name_to_uid(father.name), 
+          name_to_uid(child.name))
+  for mother in family.mothers():
+    for child in family.children(mother):
+      yield '  {} -> {} [color=orange];'.format(
+          name_to_uid(mother.name),
+          name_to_uid(child.name))
+  for prime_spouse in family.spouses():
+    for spouse in family.all_spouses(prime_spouse):
+      yield '  {} -> {} [style="dotted"];'.format(
+          name_to_uid(prime_spouse.name),
+          name_to_uid(spouse.name))
+  yield "}"
