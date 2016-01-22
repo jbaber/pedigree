@@ -2,6 +2,7 @@
 - [Package][] properly
 - Generate `.svg` file from `.dot` in some purely Python way so that
   linux command line isn't necessary.
+- Use other output formats from `dot`.
 - Simple menu-based program for inputting names as they're
   told to you by relatives.
   - Genealogy is usual spoken as "X and Y had these 3 kids: ..." and
@@ -9,6 +10,7 @@
     into the `.yaml` file directly.
   - One in ncurses for *nix and mac
   - One in qt for windows
+  - One with a simple webpage interface.
 - Structure .yaml file so there's room for extra information like
   images and stories
   - Use images in some of the visualizations
