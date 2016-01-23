@@ -53,6 +53,8 @@ def family(persons_dict):
   to_return.add_spouse(persons_dict['m'], persons_dict['k'])
   to_return.add_spouse(persons_dict['n'], persons_dict['o'])
   to_return.add_spouse(persons_dict['o'], persons_dict['n'])
+  to_return.other_notes[persons_dict['a']] = ["This guy is named a"]
+  to_return.other_notes[persons_dict['d']] = ["This guy is named d"]
   return to_return
 
 @pytest.fixture
@@ -65,6 +67,12 @@ def mothers(persons_dict):
 def spouses(persons_dict):
   return [persons_dict['k'], persons_dict['l'], persons_dict['m'],
       persons_dict['n'], persons_dict['o']]
+@pytest.fixture
+def notes(persons_dict):
+  return {persons_dict['a']: ["This guy is named a"],
+          persons_dict['d']: ["This guy is named d"],
+  }
+
 @pytest.fixture
 def name_to_uid():
   return {'a': 'personhash0cc175b9c0f1b6a831c399e269772661',
@@ -90,10 +98,11 @@ def names():
 
 
 def test_family(family, fathers, mothers, spouses,
-    names):
+    names, notes):
   assert(family.fathers() == set(fathers))
   assert(family.mothers() == set(mothers))
   assert(family.spouses() == set(spouses))
+  assert(family.notes() == notes)
   assert(set(family.names()) == set(names))
 
 def test_name_to_uid(names, name_to_uid):
@@ -311,7 +320,6 @@ def test_family_all_spouses(family, persons, persons_dict):
       [persons_dict['o']]
   assert family.all_spouses(persons_dict['o']) == \
       [persons_dict['n']]
-
 
 
 def test_new_anonymous_name(family):

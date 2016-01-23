@@ -43,3 +43,9 @@ spouse:
     - n
   n:
     - o
+---
+notes:
+  a:
+    - This guy is named a
+  d:
+    - This guy is named d

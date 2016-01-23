@@ -14,7 +14,8 @@
 - Structure .yaml file so there's room for extra information like
   images and stories
   - Use images in some of the visualizations
-- Handle empty `father`, `mother`, and/or `spouse` tables.
+- Handle empty `father`, `mother`, `spouse`, and/or notes tables.
+- Come up with a syntax for attaching notes to edges as well as individuals
 - Make colors specifiable
 - Give option to favory patriliny over matriliny or vice-versa
   to make a planar graph.

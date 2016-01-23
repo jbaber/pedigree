@@ -106,8 +106,10 @@ class Family(object):
       self.graph.add_nodes_from(persons)
 
     # Interesting data about individuals is kept in the
-    # other_data dict, keyed by Persons.
-    self.other_data = {}
+    # `other_notes` dict, keyed by Persons.  May add pairs
+    # of Persons as a key so that notes can be made on
+    # edges.
+    self.other_notes = {}
 
   def __eq__(self, other):
     return (
@@ -312,6 +314,8 @@ class Family(object):
     return cur_spouses
   def persons(self):
     return self.graph.nodes()
+  def notes(self):
+    return self.other_notes
 
 
 def name_to_uid(name):
@@ -324,7 +328,7 @@ def split_biglist(biglist):
   Take `biglist` as would be returned from a .yaml file
   and return corresponding lists
 
-      (fathers, mothers, spouses)
+      (fathers, mothers, spouses, notes)
 
   e.g. `biglist` like
 
@@ -332,6 +336,7 @@ def split_biglist(biglist):
         {'father': {'a': ['b', 'c'], 'd': ['e']}}, \
         {'mother': {'f': ['g', 'h'], 'i': ['j']}}, \
         {'spouse': {'k': ['l', 'm'], 'n': ['o']}}, \
+        {'notes': {'f': ['This one', 'and another'], 'k': ['more notes']}}, \
       ]
 
   yields
@@ -345,10 +350,14 @@ def split_biglist(biglist):
       [{'name': 'k', 'spouses': ['l', 'm']},
       {'name': 'n', 'spouses': ['o']},
       ]
+      [{'name': 'f', 'notes': ['This one', 'and another']},
+      {'name': 'k', 'notes': ['more notes']},
+      ]
   """
   fathers_dict = biglist[0]['father']
   mothers_dict = biglist[1]['mother']
   spouses_dict = biglist[2]['spouse']
+  notes_dict = biglist[2]['notes']
 
   # Make lists so that index in the lists gives a unique
   # identifier
@@ -375,7 +384,8 @@ def split_biglist(biglist):
 def yaml_to_family(yaml_file):
   family = Family()
 
-  people, fathers, mothers, spouses = yaml.load_all(yaml_file)
+  people, fathers, mothers, spouses, notes = \
+      yaml.load_all(yaml_file)
   people  = people['people']
   fathers = fathers['father']
   mothers = mothers['mother']
@@ -423,6 +433,7 @@ def family_to_yaml(family):
   fathers = family.fathers()
   mothers = family.mothers()
   spouses = family.spouses()
+  notes = family.notes()
   fathers_part = []
   for father in fathers:
     fathers_part.append("  {}:".format(father.name))
@@ -441,6 +452,12 @@ def family_to_yaml(family):
     for sub_spouse in family.all_spouses(spouse):
       spouses_part.append("    - {}".format(sub_spouse.name))
   spouses_part = "\n".join(spouses_part)
+  notes_part = []
+  for person in notes:
+    notes_part.append("  {}:".format(person.name))
+    for note in notes[person]:
+      notes_part.append("    - {}".format(note))
+  notes_part = "\n".join(notes_part)
   return """people:
 {0}
 ---
@@ -452,8 +469,11 @@ mother:
 ---
 spouse:
 {3}
+---
+notes:
+{4}
 """.format(people_part, fathers_part, mothers_part,
-    spouses_part)
+    spouses_part, notes_part)
 
 
 def biglist_to_family(biglist):
