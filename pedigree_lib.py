@@ -151,7 +151,6 @@ class Family(object):
     # Does nothing if `parent` already present
     self.graph.add_node(person)
     self.graph.add_edge(person, spouse, relation_type="spouse")
-    self.graph.add_edge(spouse, person, relation_type="spouse")
 
   def add_spouses(self, person, spouses):
     for spouse in spouses:
@@ -308,8 +307,8 @@ class Family(object):
     cur_spouses = []
     for edge in self.graph.edges(data=True):
       if edge[2]['relation_type'] == "spouse" and \
-        edge[1] == person:
-          cur_spouses.append(edge[0])
+        edge[0] == person:
+          cur_spouses.append(edge[1])
     return cur_spouses
   def persons(self):
     return self.graph.nodes()

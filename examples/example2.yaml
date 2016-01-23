@@ -1,39 +1,45 @@
 people:
   - a: male
-  - b: male
-  - c: male
+  - b: female
+  - c: female
   - d: male
-  - e: male
+  - e: female
   - f: female
-  - g: male
-  - h: male
+  - g: female
+  - h: female
   - i: female
-  - j: male
+  - j: female
   - k: male
-  - l: female
+  - l: male
   - m: female
-  - n: male
-  - o: female
+  - n: female
+  - o: male
 ---
 father:
   a:
-    - b
     - c
+    - b
   d:
-    - e
     - k
+    - e
 ---
 mother:
   i:
-    - j
     - c
+    - j
   f:
-    - g
     - h
+    - g
 ---
 spouse:
   k:
-    - l
     - m
+    - l
+  m:
+    - k
+  l:
+    - k
+  o:
+    - n
   n:
     - o

@@ -49,7 +49,10 @@ def family(persons_dict):
       persons_dict['h']])
   to_return.add_spouses(persons_dict['k'], [persons_dict['l'],
       persons_dict['m']])
+  to_return.add_spouse(persons_dict['l'], persons_dict['k'])
+  to_return.add_spouse(persons_dict['m'], persons_dict['k'])
   to_return.add_spouse(persons_dict['n'], persons_dict['o'])
+  to_return.add_spouse(persons_dict['o'], persons_dict['n'])
   return to_return
 
 @pytest.fixture
@@ -84,13 +87,6 @@ def name_to_uid():
 def names():
   return ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
       'k', 'l', 'm', 'n', 'o']
-@pytest.fixture
-def biglist():
-  return [
-    {'father': {'a': ['b', 'c'], 'd': ['e', 'k']}},
-    {'mother': {'f': ['g', 'h'], 'i': ['j', 'c']}},
-    {'spouse': {'k': ['l', 'm'], 'n': ['o']}},
-  ]
 
 
 def test_family(family, fathers, mothers, spouses,
