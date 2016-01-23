@@ -415,6 +415,47 @@ def yaml_to_family(yaml_file):
   return family
 
 
+def family_to_yaml(family):
+  people_part = "\n".join(sorted([
+    "  - {0}: {1}".format(person.name, person.gender)
+    for person in family.persons()
+  ]))
+  fathers = family.fathers()
+  mothers = family.mothers()
+  spouses = family.spouses()
+  fathers_part = []
+  for father in fathers:
+    fathers_part.append("  {}:".format(father.name))
+    for child in family.children(father):
+      fathers_part.append("    - {}".format(child.name))
+  fathers_part = "\n".join(fathers_part)
+  mothers_part = []
+  for mother in mothers:
+    mothers_part.append("  {}:".format(mother.name))
+    for child in family.children(mother):
+      mothers_part.append("    - {}".format(child.name))
+  mothers_part = "\n".join(mothers_part)
+  spouses_part = []
+  for spouse in spouses:
+    spouses_part.append("  {}:".format(spouse.name))
+    for sub_spouse in family.all_spouses(spouse):
+      spouses_part.append("    - {}".format(sub_spouse.name))
+  spouses_part = "\n".join(spouses_part)
+  return """people:
+{0}
+---
+father:
+{1}
+---
+mother:
+{2}
+---
+spouse:
+{3}
+""".format(people_part, fathers_part, mothers_part,
+    spouses_part)
+
+
 def biglist_to_family(biglist):
   """
   Take `biglist` as would be returned from a .yaml file
