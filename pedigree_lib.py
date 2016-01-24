@@ -129,6 +129,12 @@ class Family(object):
   def names(self):
     return [person.name for person in self.persons()]
 
+  def name_to_person(self, name):
+    for person in self.persons():
+      if person.name == name:
+        return person
+    return None
+
   def add_child(self, parent, child):
     # Does nothing if `parent` already present
     self.graph.add_node(parent)

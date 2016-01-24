@@ -321,6 +321,10 @@ def test_family_all_spouses(family, persons, persons_dict):
   assert family.all_spouses(persons_dict['o']) == \
       [persons_dict['n']]
 
+def test_family_name_to_person(family, persons_dict, names):
+  for name in names:
+    assert family.name_to_person(name) == persons_dict[name]
+
 
 def test_new_anonymous_name(family):
   assert(family.new_anonymous_name() == '?')
