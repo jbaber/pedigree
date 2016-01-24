@@ -781,7 +781,7 @@ def interact(yaml_filename):
       titlebar,
       existing_relations.keys() + new_relations.keys() + \
       [
-       # "Add children",
+       "9. Add children to a couple",
       ]
   )
   change_made = False
@@ -807,6 +807,16 @@ def interact(yaml_filename):
       if rel:
         add_function(person, rel)
         change_made = True
+  if next_move == "9. Add children to a couple":
+    couples = family.couples()
+    if not couples:
+      easygui.msgbox(
+          "There are no pairs of people who share a child.")
+    else:
+      name_to_couple = {
+        "{} and {}".format(**couple)
+        for couple in couples
+      }
   if change_made:
     if easygui.ynbox("Save changes?", titlebar):
       with open(yaml_filename, 'w') as yaml_file:
