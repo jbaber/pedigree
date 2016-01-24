@@ -757,25 +757,25 @@ def interact(yaml_filename):
   with open(yaml_filename) as yaml_file:
     family = yaml_to_family(yaml_file)
   titlebar = "Editing {0}".format(yaml_filename)
-  existing_relations = {
-    "Add an existing person as a full sibling":
-      ["full_sibling", family.add_full_sibling],
-    "Add an existing person as a father":
-      ["father", family.add_father],
-    "Add an existing person as a mother":
-      ["mother", family.add_mother],
-    "Add an existing person as a child":
-      ["child", family.add_child],
-  }
   new_relations = {
-    "Add a new person as a full sibling":
+    "1. Add a new person as a full sibling":
       ["full sibling", family.add_full_sibling, None],
-    "Add a new person as a father":
+    "2. Add a new person as a father":
       ["father", family.add_father, "male"],
-    "Add a new person as a mother":
+    "3. Add a new person as a mother":
       ["mother", family.add_mother, "female"],
-    "Add a new person as a child":
+    "4. Add a new person as a child":
       ["child", family.add_child, None],
+  }
+  existing_relations = {
+    "5. Add an existing person as a full sibling":
+      ["full_sibling", family.add_full_sibling],
+    "6. Add an existing person as a father":
+      ["father", family.add_father],
+    "7. Add an existing person as a mother":
+      ["mother", family.add_mother],
+    "8. Add an existing person as a child":
+      ["child", family.add_child],
   }
   next_move = easygui.choicebox("What would you like to do?",
       titlebar,
