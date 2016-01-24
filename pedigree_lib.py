@@ -2,6 +2,7 @@ import hashlib
 import re
 import networkx as nx
 import yaml
+import easygui
 
 """
 Family is kept as a "directed multigraph" with Persons as
@@ -322,6 +323,49 @@ class Family(object):
     return self.graph.nodes()
   def notes(self):
     return self.other_notes
+
+  def gui_choose_person(self, message, title):
+    chosen = easygui.choicebox(message, title,
+      [person.name for person in self.persons()]
+    )
+    return self.name_to_person(chosen)
+
+  def gui_choose_person_or_add(self, message, title, gender=None):
+    chosen = easygui.choicebox(message, title,
+        [person.name for person in self.persons()] + \
+        ["**** Add a new person ****"]
+      )
+    if not chosen:
+      return None
+    if chosen == "**** Add a new person ****":
+      new_name = easygui.enterbox(
+        "Enter the new person's name", title)
+      if not new_name:
+        return None
+      if not gender:
+        given = easygui.choicebox("Gender", title,
+          ["Male", "Female"]
+        )
+        gender = given.lower()
+      new_person = Person(new_name, gender)
+      self.add_person(new_person)
+      return new_person
+    else:
+      return self.name_to_person(chosen)
+
+  def gui_add_person(self, message, title, gender=None):
+    new_name = easygui.enterbox(
+      "Enter the new person's name", title)
+    if not new_name:
+      return None
+    if not gender:
+      given = easygui.choicebox("Gender", title,
+        ["Male", "Female"]
+      )
+      gender = given.lower()
+    new_person = Person(new_name, gender)
+    self.add_person(new_person)
+    return new_person
 
 
 def name_to_uid(name):
@@ -688,3 +732,62 @@ def dot_file_generator(family):
           name_to_uid(prime_spouse.name),
           name_to_uid(spouse.name))
   yield "}"
+
+def interact(yaml_filename):
+  with open(yaml_filename) as yaml_file:
+    family = yaml_to_family(yaml_file)
+  titlebar = "Editing {0}".format(yaml_filename)
+  existing_relations = {
+    "Add an existing person as a full sibling":
+      ["full_sibling", family.add_full_sibling],
+    "Add an existing person as a father":
+      ["father", family.add_father],
+    "Add an existing person as a mother":
+      ["mother", family.add_mother],
+    "Add an existing person as a child":
+      ["child", family.add_child],
+  }
+  new_relations = {
+    "Add a new person as a full sibling":
+      ["full sibling", family.add_full_sibling, None],
+    "Add a new person as a father":
+      ["father", family.add_father, "male"],
+    "Add a new person as a mother":
+      ["mother", family.add_mother, "female"],
+    "Add a new person as a child":
+      ["child", family.add_child, None],
+  }
+  next_move = easygui.choicebox("What would you like to do?",
+      titlebar,
+      existing_relations.keys() + new_relations.keys() + \
+      [
+       # "Add children",
+      ]
+  )
+  change_made = False
+  if next_move in existing_relations:
+    relationship = existing_relations[next_move][0]
+    add_function = existing_relations[next_move][1]
+    person = family.gui_choose_person("To whom?", titlebar)
+    if person:
+      rel = family.gui_choose_person(
+          "Who is the {}?".format(relationship), titlebar)
+      if rel:
+        add_function(person, rel)
+        change_made = True
+  if next_move in new_relations:
+    relationship = new_relations[next_move][0]
+    add_function = new_relations[next_move][1]
+    gender = new_relations[next_move][2]
+    person = family.gui_choose_person("To whom?", titlebar)
+    if person:
+      rel = family.gui_add_person(
+          "Who is the new {}?".format(relationship), titlebar,
+          gender)
+      if rel:
+        add_function(person, rel)
+        change_made = True
+  if change_made:
+    if easygui.ynbox("Save changes?", titlebar):
+      with open(yaml_filename, 'w') as yaml_file:
+        yaml_file.write(family_to_yaml(family))
