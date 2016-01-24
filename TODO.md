@@ -11,16 +11,18 @@
   - One in ncurses for *nix and mac
   - One in qt for windows
   - One with a simple webpage interface.
-- Structure .yaml file so there's room for extra information like
-  images and stories
-  - Use images in some of the visualizations
+- Use images in some of the visualizations
 - Handle empty `father`, `mother`, `spouse`, and/or notes tables.
 - Come up with a syntax for attaching notes to edges as well as individuals
 - Make colors specifiable
-- Give option to favory patriliny over matriliny or vice-versa
+- Give option to favor patriliny over matriliny or vice-versa
   to make a planar graph.
 - Add ability to make visualizations that have anonymized names
   and/or only first names.
-- Remove arrowhead from "spouse" relation
+- Somehow add tests for GUI stuff.
+- Handle "add children to a couple"
+- Handle "add children to a couple" when no couple exists
+- Add spouses to list in "add children to a couple"
+- Handle "add children to a couple" when user wants to add a new couple
 
 [Package]: http://blog.ionelmc.ro/2015/02/24/the-problem-with-packaging-in-python/
