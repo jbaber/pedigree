@@ -68,6 +68,15 @@ def spouses(persons_dict):
   return [persons_dict['k'], persons_dict['l'], persons_dict['m'],
       persons_dict['n'], persons_dict['o']]
 @pytest.fixture
+def couples(persons_dict):
+  return [
+    sorted([persons_dict['a'], persons_dict['i']]),
+    sorted([persons_dict['k'], persons_dict['l']]),
+    sorted([persons_dict['k'], persons_dict['m']]),
+    sorted([persons_dict['n'], persons_dict['o']]),
+  ]
+
+@pytest.fixture
 def notes(persons_dict):
   return {persons_dict['a']: ["This guy is named a"],
           persons_dict['d']: ["This guy is named d"],
@@ -298,6 +307,11 @@ def test_family_mother(family, persons, persons_dict):
   assert family.mother(persons_dict['h']) == persons_dict['f']
   assert family.mother(persons_dict['i']) == None
   assert family.mother(persons_dict['j']) == persons_dict['i']
+
+
+def test_family_couples(family, persons_dict, couples):
+  assert sorted(family.couples()) == sorted(couples)
+
 
 def test_family_all_spouses(family, persons, persons_dict):
   assert family.all_spouses(persons_dict['a']) == []

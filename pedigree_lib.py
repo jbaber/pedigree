@@ -300,6 +300,26 @@ class Family(object):
         for edge in self.graph.edges(data=True)
         if edge[2]['relation_type'] == "spouse"
     ])
+
+  def couples(self):
+    """
+    Return pairs `sorted([one, two])` for any pairs of people
+    `one` and `two` who share at least one child *or* are
+    spouses
+    """
+    to_return = []
+    for father in self.fathers():
+      for child in self.children(father):
+        mother = self.mother(child)
+        if mother:
+          if sorted([father, mother]) not in to_return:
+            to_return.append(sorted([father, mother]))
+    for super_spouse in self.spouses():
+      for sub_spouse in self.all_spouses(super_spouse):
+        if sorted([super_spouse, sub_spouse]) not in to_return:
+          to_return.append(sorted([super_spouse, sub_spouse]))
+    return to_return
+
   def father(self, person):
     for edge in self.graph.edges(data=True):
       if edge[2]['relation_type'] == "father" and \
