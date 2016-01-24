@@ -349,6 +349,13 @@ def test_family_to_yaml(family):
   assert left_side == right_side
 
 def test_d3_html_page_generator():
+  with open('examples/example.yaml') as input_file:
+    with open('examples/example.html') as output_file:
+      assert(
+        "\n".join(pedigree_lib.d3_html_page_generator(
+          pedigree_lib.yaml_to_family(input_file))) == \
+              output_file.read()
+      )
   with open('examples/example2.yaml') as input_file:
     with open('examples/example2.html') as output_file:
       assert(
@@ -360,9 +367,6 @@ def test_d3_html_page_generator():
 def test_dot_file_generator():
   with open('examples/example2.yaml') as input_file:
     with open('examples/example2.dot') as output_file:
-      with open('/tmp/boo.dot', 'w') as f:
-        f.write("\n".join(pedigree_lib.dot_file_generator(
-          pedigree_lib.yaml_to_family(input_file))))
-      # received = "\n".join(pedigree_lib.dot_file_generator(
-      #     pedigree_lib.yaml_to_family(input_file)))
-      # assert(received == output_file.read())
+      received = "\n".join(pedigree_lib.dot_file_generator(
+          pedigree_lib.yaml_to_family(input_file))) + "\n"
+      assert(received == output_file.read())
