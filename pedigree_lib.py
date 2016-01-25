@@ -806,7 +806,7 @@ def interact(yaml_filename):
       titlebar,
       existing_relations.keys() + new_relations.keys() + \
       [
-       "9. Add children to a couple",
+       "9. Add new people as children of a couple",
       ]
   )
   change_made = False
@@ -832,16 +832,18 @@ def interact(yaml_filename):
       if rel:
         add_function(person, rel)
         change_made = True
-  if next_move == "9. Add children to a couple":
-    couples = family.couples()
-    if not couples:
-      easygui.msgbox(
-          "There are no pairs of people who share a child.")
-    else:
-      name_to_couple = {
-        "{} and {}".format(**couple)
-        for couple in couples
-      }
+  if next_move == "9. Add new people as children of a couple":
+    couple = family.gui_choose_couple_or_add("Choose a couple",
+        titlebar)
+
+    # Loop over and over adding kids until the user presses Cancel
+    kid = "Fake thing that's just not None"
+    while kid:
+      kid = family.gui_add_person("Child's name? (Press Cancel to stop)", titlebar)
+      if kid:
+        family.add_child(couple[0], kid)
+        family.add_child(couple[1], kid)
+        change_made = True
   if change_made:
     if easygui.ynbox("Save changes?", titlebar):
       with open(yaml_filename, 'w') as yaml_file:
