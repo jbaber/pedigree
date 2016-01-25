@@ -19,7 +19,7 @@ Caveats:
 Until I figure out [how to make a Python package][ugh] (or someone does it
 right in a fork), I will list dependencies here:
   - Python Packages:
-    - `pip install --user` [docopt][] [networkx][] [PyYAML][]
+    - `pip install --user` [docopt][] [networkx][] [PyYAML][] easygui
   - Linux programs:
     - `sudo apt-get install` [graphviz][dot]
 
