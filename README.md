@@ -10,18 +10,23 @@ Outputs:
   - `.svg` file: a "Sugiyama style" tree that can be opened in a web browser
   - `.dot` file: the [dot][] file used to generate the `.svg` file
 
-Caveats:
---------
-  - Don't put all your genealogical data in one text file that you manipulate via a python script written by some idiot on the internet.  At least make copies of the one text file.
-  - This can only recognize the relations `x is the mother of y`, `x is the father of y`, and `x is the spouse of y`.  It has no concept of siblings or partial siblings.
-  - The `.yaml` file depends on every name to be unique, so you may need names like `John Smith (2)` and `John Smith (1)`.
-
+Installation:
+-------------
 Until I figure out [how to make a Python package][ugh] (or someone does it
 right in a fork), I will list dependencies here:
   - Python Packages:
     - `pip install --user` [docopt][] [networkx][] [PyYAML][] easygui
   - Linux programs:
     - `sudo apt-get install` [graphviz][dot]
+Once those dependencies are installed, `./pedigree.py --help` should tell you
+what to do.
+
+Caveats:
+--------
+  - Don't put all your genealogical data in one text file that you manipulate via a python script written by some idiot on the internet.  At least make copies of the one text file.
+  - This can only recognize the relations `x is the mother of y`, `x is the father of y`, and `x is the spouse of y`.  It has no concept of siblings or partial siblings.
+  - The `.yaml` file depends on every name to be unique, so you may need names like `John Smith (2)` and `John Smith (1)`.
+
 
 [yaml]: https://en.wikipedia.org/wiki/YAML
 [PyYAML]: http://pyyaml.org
