@@ -808,6 +808,7 @@ def interact(yaml_filename):
       [
        "i. Add new people as children of a couple",
        "j. Add a pair of spouses",
+       "k. Add a new person",
       ]
   )
   change_made = False
@@ -855,6 +856,10 @@ def interact(yaml_filename):
         family.add_spouse(person_1, person_2)
         family.add_spouse(person_2, person_1)
         change_made = True
+  if next_move == "k. Add a new person":
+    person = family.gui_add_person("New person's name?", titlebar)
+    if person:
+      change_made = True
   if change_made:
     if easygui.ynbox("Save changes?", titlebar):
       with open(yaml_filename, 'w') as yaml_file:
