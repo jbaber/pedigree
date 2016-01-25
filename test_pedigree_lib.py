@@ -339,6 +339,11 @@ def test_family_name_to_person(family, persons_dict, names):
   for name in names:
     assert family.name_to_person(name) == persons_dict[name]
 
+def test_family_string_to_couple(family, persons_dict):
+  assert family.string_to_couple("a and b") == \
+      (persons_dict['a'], persons_dict['b'])
+  assert family.string_to_couple("o and f") == \
+      (persons_dict['o'], persons_dict['f'])
 
 def test_new_anonymous_name(family):
   assert(family.new_anonymous_name() == '?')

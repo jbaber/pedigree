@@ -373,6 +373,15 @@ class Family(object):
     else:
       return self.name_to_person(chosen)
 
+  def string_to_couple(self, string):
+    """
+    Given "Larry and Bill" return the pair of Persons
+    (Larry, Bill)
+    """
+    first_name, second_name = string.split(" and ", 1)
+    return (self.name_to_person(first_name),
+        self.name_to_person(second_name))
+
   def gui_add_person(self, message, title, gender=None):
     new_name = easygui.enterbox(
       "Enter the new person's name", title)
