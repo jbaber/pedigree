@@ -382,6 +382,23 @@ class Family(object):
     return (self.name_to_person(first_name),
         self.name_to_person(second_name))
 
+  def gui_choose_couple_or_add(self, message, title):
+    chosen = easygui.choicebox(message, title,
+        ["{} and {}".format(couple[0].name, couple[1].name)
+          for couple in self.couples()] + \
+        ["**** Add a new couple ****"]
+      )
+    if not chosen:
+      return None
+    if chosen == "**** Add a new couple ****":
+      person_1 = self.gui_choose_person_or_add("First member of the couple:", title)
+      person_2 = self.gui_choose_person_or_add("Second member of the couple:", title)
+      if person_1 and person_2:
+        return (person_1, person_2)
+      return None
+    else:
+      return self.string_to_couple(chosen)
+
   def gui_add_person(self, message, title, gender=None):
     new_name = easygui.enterbox(
       "Enter the new person's name", title)
