@@ -58,34 +58,6 @@ class Person(object):
   def __repr__(self):
     return "{} ({})".format(self.name, self.gender)
 
-  def add_children(self, children):
-
-    # Do nothing if any of the children are already present
-    for child in children:
-      if child in self.children:
-        raise PersonExistsError(
-            "{0} already a child of {1}".format(child, self)
-        )
-
-    for child in children:
-      self.children.append(child)
-
-  def add_child(self, child):
-    self.add_children([child])
-
-  def add_spouses(self, spouses):
-
-    # Do nothing if any of the spouses are already present
-    for spouse in spouses:
-      if spouse in self.spouses:
-        raise PersonExistsError(
-            "{0} already a spouse of {1}".format(spouse, self)
-        )
-
-    for spouse in spouses:
-      self.spouses.append(spouse)
-
-
 
 class Family(object):
   """
