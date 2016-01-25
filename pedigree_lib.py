@@ -783,30 +783,31 @@ def interact(yaml_filename):
     family = yaml_to_family(yaml_file)
   titlebar = "Editing {0}".format(yaml_filename)
   new_relations = {
-    "1. Add a new person as a full sibling":
+    "a.  Add a new person as a full sibling":
       ["full sibling", family.add_full_sibling, None],
-    "2. Add a new person as a father":
+    "b.  Add a new person as a father":
       ["father", family.add_father, "male"],
-    "3. Add a new person as a mother":
+    "c.  Add a new person as a mother":
       ["mother", family.add_mother, "female"],
-    "4. Add a new person as a child":
+    "d.  Add a new person as a child":
       ["child", family.add_child, None],
   }
   existing_relations = {
-    "5. Add an existing person as a full sibling":
+    "e.  Add an existing person as a full sibling":
       ["full_sibling", family.add_full_sibling],
-    "6. Add an existing person as a father":
+    "f.  Add an existing person as a father":
       ["father", family.add_father],
-    "7. Add an existing person as a mother":
+    "g.  Add an existing person as a mother":
       ["mother", family.add_mother],
-    "8. Add an existing person as a child":
+    "h.  Add an existing person as a child":
       ["child", family.add_child],
   }
   next_move = easygui.choicebox("What would you like to do?",
       titlebar,
       existing_relations.keys() + new_relations.keys() + \
       [
-       "9. Add new people as children of a couple",
+       "i. Add new people as children of a couple",
+       "j. Add a pair of spouses",
       ]
   )
   change_made = False
@@ -832,7 +833,7 @@ def interact(yaml_filename):
       if rel:
         add_function(person, rel)
         change_made = True
-  if next_move == "9. Add new people as children of a couple":
+  if next_move == "i. Add new people as children of a couple":
     couple = family.gui_choose_couple_or_add("Choose a couple",
         titlebar)
 
@@ -843,6 +844,16 @@ def interact(yaml_filename):
       if kid:
         family.add_child(couple[0], kid)
         family.add_child(couple[1], kid)
+        change_made = True
+  if next_move == "j. Add a pair of spouses":
+    person_1 = family.gui_choose_person_or_add("First person?",
+        titlebar)
+    if person_1:
+      person_2 = family.gui_choose_person_or_add(
+          "Second person?", titlebar)
+      if person_2:
+        family.add_spouse(person_1, person_2)
+        family.add_spouse(person_2, person_1)
         change_made = True
   if change_made:
     if easygui.ynbox("Save changes?", titlebar):
