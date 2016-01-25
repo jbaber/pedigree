@@ -400,8 +400,7 @@ class Family(object):
       return self.string_to_couple(chosen)
 
   def gui_add_person(self, message, title, gender=None):
-    new_name = easygui.enterbox(
-      "Enter the new person's name", title)
+    new_name = easygui.enterbox(message, title)
     if not new_name:
       return None
     if not gender:
