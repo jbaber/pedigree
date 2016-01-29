@@ -48,7 +48,7 @@ def main(yaml_filename, file_basename):
   # Generate graphviz .dot file
   with open('{}.dot'.format(file_basename), 'w') as f:
     for line in pedigree_lib.dot_file_generator(family):
-      f.write(line)
+      f.write(line + "\n")
 
   # Generate .svg from .dot file
   with open('{}.svg'.format(file_basename), 'w') as svg_file:

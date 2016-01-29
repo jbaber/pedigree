@@ -733,23 +733,23 @@ def dot_file_generator(family):
 
   # Set up the nodes
   for person_name in family.names():
-    yield '  {} [label="{}", shape="box"];'.format(
+    yield '  "{}" [label="{}", shape="box"];'.format(
         name_to_uid(person_name), person_name)
 
   # Set up the connections
   for father in family.fathers():
     for child in family.children(father):
-      yield '  {} -> {} [color=blue];'.format(
+      yield '  "{}" -> "{}" [color=blue];'.format(
           name_to_uid(father.name), 
           name_to_uid(child.name))
   for mother in family.mothers():
     for child in family.children(mother):
-      yield '  {} -> {} [color=orange];'.format(
+      yield '  "{}" -> "{}" [color=orange];'.format(
           name_to_uid(mother.name),
           name_to_uid(child.name))
   for prime_spouse in family.spouses():
     for spouse in family.all_spouses(prime_spouse):
-      yield '  {} -> {} [style="dotted"];'.format(
+      yield '  "{}" -> "{}" [style="dotted"];'.format(
           name_to_uid(prime_spouse.name),
           name_to_uid(spouse.name))
   yield "}"
