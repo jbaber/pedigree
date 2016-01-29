@@ -84,21 +84,23 @@ def notes(persons_dict):
 
 @pytest.fixture
 def name_to_uid():
-  return {'a': 'personhash0cc175b9c0f1b6a831c399e269772661',
-     'b': 'personhash92eb5ffee6ae2fec3ad71c777531578f',
-     'c': 'personhash4a8a08f09d37b73795649038408b5f33',
-     'd': 'personhash8277e0910d750195b448797616e091ad',
-     'e': 'personhashe1671797c52e15f763380b45e841ec32',
-     'f': 'personhash8fa14cdd754f91cc6554c9e71929cce7',
-     'g': 'personhashb2f5ff47436671b6e533d8dc3614845d',
-     'h': 'personhash2510c39011c5be704182423e3a695e91',
-     'i': 'personhash865c0c0b4ab0e063e5caa3387c1a8741',
-     'j': 'personhash363b122c528f54df4a0446b6bab05515',
-     'k': 'personhash8ce4b16b22b58894aa86c421e8759df3',
-     'l': 'personhash2db95e8e1a9267b7a1188556b2013b33',
-     'm': 'personhash6f8f57715090da2632453988d9a1501b',
-     'n': 'personhash7b8b965ad4bca0e41ab51de7b31363a1',
-     'o': 'personhashd95679752134a2d9eb61dbd7b91c4bcc'
+
+  return {
+     'a': 'r0E',
+     'b': 'vgm',
+     'c': 'wjR',
+     'd': 'g56',
+     'e': 'j25',
+     'f': 'k5X',
+     'g': 'lO6',
+     'h': 'mw0',
+     'i': 'nZl',
+     'j': 'oYK',
+     'k': 'pg6',
+     'l': 'qjr',
+     'm': 'r06',
+     'n': 'vgr',
+     'o': 'wjw',
     }
 @pytest.fixture
 def names():

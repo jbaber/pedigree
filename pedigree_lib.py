@@ -1,4 +1,4 @@
-import hashlib
+import hashids
 import re
 import networkx as nx
 import yaml
@@ -57,6 +57,9 @@ class Person(object):
 
   def __repr__(self):
     return "{} ({})".format(self.name, self.gender)
+
+  def uid(self):
+    return name_to_uid(self.name)
 
 
 class Family(object):
@@ -387,7 +390,8 @@ class Family(object):
 
 def name_to_uid(name):
   """Give a unique id to any name"""
-  return "personhash" + hashlib.md5(name).hexdigest()
+  hashids_instance = hashids.Hashids()
+  return hashids_instance.encode(int(''.join([str(ord(x)) for x in name])))
 
 
 def split_biglist(biglist):
@@ -606,21 +610,21 @@ def d3_html_page_generator(family):
   family = {"""
   yield '  "father": {'
   for father in family.fathers():
-    yield '"{}": ['.format(father.name)
+    yield '"{}": ['.format(father)
     for child in family.children(father):
       yield '"{}",\n'.format(child)
     yield '],\n'
   yield '},\n'
   yield '"mother": {\n'
   for mother in family.mothers():
-    yield '"{}": [\n'.format(mother.name)
+    yield '"{}": [\n'.format(mother)
     for child in family.children(mother):
       yield '"{}",\n'.format(child)
     yield '],\n'
   yield '},\n'
   yield '"spouse": {\n'
   for prime_spouse in family.spouses():
-    yield '"{}": [\n'.format(prime_spouse.name)
+    yield '"{}": [\n'.format(prime_spouse)
     for spouse in family.all_spouses(prime_spouse):
       yield '"{}",\n'.format(spouse)
     yield '],\n'
