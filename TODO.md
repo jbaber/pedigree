@@ -1,6 +1,8 @@
 - [Package][] properly
 - Generate `.svg` file from `.dot` in some purely Python way so that
   linux command line isn't necessary.
+- Make a menu option to change a person's name
+  - Make a family.change_name(person)
 - Use other output formats from `dot`.
 - Make a prettier gui
   - Maybe ncurses, as well
