@@ -761,6 +761,9 @@ function transform(d) {
 """
 
 def show_temp_floating_chart(family):
+  """
+  Create a floating chart in a temporary file and open it in the browser.
+  """
 
   # Create a temporary file
   html_file_descriptor, html_filename = tempfile.mkstemp()
