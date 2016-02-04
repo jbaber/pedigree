@@ -8,6 +8,7 @@ from urllib import pathname2url
 import webbrowser
 import os
 import subprocess
+import time
 
 """
 Family is kept as a "directed multigraph" with Persons as
@@ -836,91 +837,103 @@ def interact(yaml_filename):
   with open(yaml_filename) as yaml_file:
     family = yaml_to_family(yaml_file)
   titlebar = "Editing {0}".format(yaml_filename)
-  new_relations = {
-    "a.  Add a new person as a full sibling":
-      ["full sibling", family.add_full_sibling, None],
-    "b.  Add a new person as a father":
-      ["father", family.add_father, "male"],
-    "c.  Add a new person as a mother":
-      ["mother", family.add_mother, "female"],
-    "d.  Add a new person as a child":
-      ["child", family.add_child, None],
-  }
-  existing_relations = {
-    "e.  Add an existing person as a full sibling":
-      ["full_sibling", family.add_full_sibling],
-    "f.  Add an existing person as a father":
-      ["father", family.add_father],
-    "g.  Add an existing person as a mother":
-      ["mother", family.add_mother],
-    "h.  Add an existing person as a child":
-      ["child", family.add_child],
-  }
-  next_move = easygui.choicebox("What would you like to do?",
-      titlebar,
-      existing_relations.keys() + new_relations.keys() + \
-      [
-       "i. Add new people as children of a couple",
-       "j. Add a pair of spouses",
-       "k. Add a new person",
-       "l. See a floating chart in the browser",
-       "m. See a rigid chart in the browser",
-      ]
-  )
-  change_made = False
-  if next_move in existing_relations:
-    relationship = existing_relations[next_move][0]
-    add_function = existing_relations[next_move][1]
-    person = family.gui_choose_person("To whom?", titlebar)
-    if person:
-      rel = family.gui_choose_person(
-          "Who is the {}?".format(relationship), titlebar)
-      if rel:
-        add_function(person, rel)
-        change_made = True
-  if next_move in new_relations:
-    relationship = new_relations[next_move][0]
-    add_function = new_relations[next_move][1]
-    gender = new_relations[next_move][2]
-    person = family.gui_choose_person("To whom?", titlebar)
-    if person:
-      rel = family.gui_add_person(
-          "Who is the new {}?".format(relationship), titlebar,
-          gender)
-      if rel:
-        add_function(person, rel)
-        change_made = True
-  if next_move == "i. Add new people as children of a couple":
-    couple = family.gui_choose_couple_or_add("Choose a couple",
-        titlebar)
+  quit_yet = False
+  while not quit_yet:
+    new_relations = {
+      "a.  Add a new person as a full sibling":
+        ["full sibling", family.add_full_sibling, None],
+      "b.  Add a new person as a father":
+        ["father", family.add_father, "male"],
+      "c.  Add a new person as a mother":
+        ["mother", family.add_mother, "female"],
+      "d.  Add a new person as a child":
+        ["child", family.add_child, None],
+    }
+    existing_relations = {
+      "e.  Add an existing person as a full sibling":
+        ["full_sibling", family.add_full_sibling],
+      "f.  Add an existing person as a father":
+        ["father", family.add_father],
+      "g.  Add an existing person as a mother":
+        ["mother", family.add_mother],
+      "h.  Add an existing person as a child":
+        ["child", family.add_child],
+    }
+    next_move = easygui.choicebox("What would you like to do?",
+        titlebar,
+        existing_relations.keys() + new_relations.keys() + \
+        [
+        "i. Add new people as children of a couple",
+        "j. Add a pair of spouses",
+        "k. Add a new person",
+        "l. See a floating chart in the browser",
+        "m. See a rigid chart in the browser",
+        "q. Quit",
+        ]
+    )
+    change_made = False
+    if next_move in existing_relations:
+      relationship = existing_relations[next_move][0]
+      add_function = existing_relations[next_move][1]
+      person = family.gui_choose_person("To whom?", titlebar)
+      if person:
+        rel = family.gui_choose_person(
+            "Who is the {}?".format(relationship), titlebar)
+        if rel:
+          add_function(person, rel)
+          change_made = True
+    if next_move in new_relations:
+      relationship = new_relations[next_move][0]
+      add_function = new_relations[next_move][1]
+      gender = new_relations[next_move][2]
+      person = family.gui_choose_person("To whom?", titlebar)
+      if person:
+        rel = family.gui_add_person(
+            "Who is the new {}?".format(relationship), titlebar,
+            gender)
+        if rel:
+          add_function(person, rel)
+          change_made = True
+    if next_move == "i. Add new people as children of a couple":
+      couple = family.gui_choose_couple_or_add("Choose a couple",
+          titlebar)
 
-    # Loop over and over adding kids until the user presses Cancel
-    kid = "Fake thing that's just not None"
-    while kid:
-      kid = family.gui_add_person("Child's name? (Press Cancel to stop)", titlebar)
-      if kid:
-        family.add_child(couple[0], kid)
-        family.add_child(couple[1], kid)
+      # Loop over and over adding kids until the user presses Cancel
+      kid = "Fake thing that's just not None"
+      while kid:
+        kid = family.gui_add_person("Child's name? (Press Cancel to stop)", titlebar)
+        if kid:
+          family.add_child(couple[0], kid)
+          family.add_child(couple[1], kid)
+          change_made = True
+    if next_move == "j. Add a pair of spouses":
+      person_1 = family.gui_choose_person_or_add("First person?",
+          titlebar)
+      if person_1:
+        person_2 = family.gui_choose_person_or_add(
+            "Second person?", titlebar)
+        if person_2:
+          family.add_spouse(person_1, person_2)
+          family.add_spouse(person_2, person_1)
+          change_made = True
+    if next_move == "k. Add a new person":
+      person = family.gui_add_person("New person's name?", titlebar)
+      if person:
         change_made = True
-  if next_move == "j. Add a pair of spouses":
-    person_1 = family.gui_choose_person_or_add("First person?",
-        titlebar)
-    if person_1:
-      person_2 = family.gui_choose_person_or_add(
-          "Second person?", titlebar)
-      if person_2:
-        family.add_spouse(person_1, person_2)
-        family.add_spouse(person_2, person_1)
-        change_made = True
-  if next_move == "k. Add a new person":
-    person = family.gui_add_person("New person's name?", titlebar)
-    if person:
-      change_made = True
-  if next_move == "l. See a floating chart in the browser":
-    show_temp_floating_chart(family)
-  if next_move == "m. See a rigid chart in the browser":
-    show_temp_rigid_chart(family)
-  if change_made:
-    if easygui.ynbox("Save changes?", titlebar):
-      with open(yaml_filename, 'w') as yaml_file:
-        yaml_file.write(family_to_yaml(family))
+    wait_num_seconds = 10
+    popup_string = "\n\033[91mNew menu in {} seconds\033[0m".format(
+        wait_num_seconds)
+    if next_move == "l. See a floating chart in the browser":
+      print(popup_string)
+      show_temp_floating_chart(family)
+      time.sleep(wait_num_seconds)
+    if next_move == "m. See a rigid chart in the browser":
+      print(popup_string)
+      show_temp_rigid_chart(family)
+      time.sleep(wait_num_seconds)
+    if next_move == "q. Quit":
+      quit_yet = True
+    if change_made:
+      if easygui.ynbox("Save changes?", titlebar):
+        with open(yaml_filename, 'w') as yaml_file:
+          yaml_file.write(family_to_yaml(family))
