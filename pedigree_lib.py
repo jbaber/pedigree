@@ -492,8 +492,12 @@ def split_biglist(biglist):
 def yaml_to_family(yaml_file):
   family = Family()
 
-  people, fathers, mothers, spouses, notes = \
-      yaml.load_all(yaml_file)
+  try:
+    people, fathers, mothers, spouses, notes = \
+        yaml.load_all(yaml_file)
+  except yaml.constructor.ConstructorError, e:
+    print("{} is not a well-formed YAML file.  Maybe some names have special" \
+        " characters in them?".format(yaml_file.name))
   people  = people['people']
   fathers = fathers['father']
   mothers = mothers['mother']
