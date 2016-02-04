@@ -797,8 +797,11 @@ def show_temp_rigid_chart(family):
   # Generate .svg from .dot file
   svg_filename = os.path.join(temp_dir, "family_tree.svg")
   with open(svg_filename, 'w') as svg_file:
-    subprocess.Popen(['dot', '-Tsvg', dot_filename],
+    process = subprocess.Popen(['dot', '-Tsvg', dot_filename],
         stdout=svg_file)
+
+    # Wait until it's done writing out
+    process.wait()
 
   # Open it in a browser
   webbrowser.open('file:{}'.format(pathname2url(svg_filename)))
