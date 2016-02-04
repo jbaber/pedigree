@@ -792,7 +792,7 @@ def show_temp_rigid_chart(family):
   dot_filename = os.path.join(temp_dir, "family_tree.dot")
   with open(dot_filename, 'w') as dot_file:
     for line in dot_file_generator(family):
-      dot_file.write(line)
+      dot_file.write(line + "\n")
 
   # Generate .svg from .dot file
   svg_filename = os.path.join(temp_dir, "family_tree.svg")
