@@ -1,4 +1,7 @@
 - [Package][] properly
+- Make `interact` behavior the default
+  - Then make it possible for someone to create a brand new family
+    interactively.
 - Generate `.svg` file from `.dot` in some purely Python way so that
   linux command line isn't necessary.
 - Make a menu option to change a person's name
