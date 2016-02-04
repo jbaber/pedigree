@@ -88,13 +88,41 @@ class Family(object):
     self.other_notes = {}
 
   def __eq__(self, other):
-    return (
-      self.graph.nodes() == other.graph.nodes() and \
-      self.graph.edges(data=True) == other.graph.edges(data=True)
-    )
+    # Two families are the same if they have the same lists of
+    # fathers, mothers, spouses, and same relations between them.
+    our_persons = self.persons()
+    their_persons = other.persons()
+    our_mothers = self.mothers()
+    their_mothers = other.mothers()
+    our_fathers = self.fathers()
+    their_fathers = other.fathers()
+    our_spouses = self.spouses()
+    their_spouses = other.spouses()
+    if set(our_persons) != set(their_persons):
+      return False
+    if set(our_mothers) != set(their_mothers):
+      return False
+    if set(our_fathers) != set(their_fathers):
+      return False
+    if set(our_spouses) != set(their_spouses):
+      return False
+    for father in our_fathers:
+      if set(self.children(father)) != \
+          set(other.children(father)):
+        return False
+    for mother in our_mothers:
+      if set(self.children(mother)) != \
+          set(other.children(mother)):
+        return False
+    for spouse in our_spouses:
+      if set(self.all_spouses(spouse)) != \
+          set(other.all_spouses(spouse)):
+        return False
+
+    return True
 
   def __ne__(self, other):
-    return self != other
+    return not (self == other)
 
   def add_person(self, person):
     self.graph.add_node(person)
