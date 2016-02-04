@@ -139,6 +139,9 @@ class Family(object):
         return person
     return None
 
+  def change_name(self, person, new_name):
+    person.name = new_name
+
   def add_child(self, parent, child):
     # Does nothing if `parent` already present
     self.graph.add_node(parent)

@@ -1,6 +1,7 @@
 import pedigree_lib
 import pytest
 import networkx as nx
+import copy
 
 @pytest.fixture
 def persons_dict():
@@ -336,6 +337,38 @@ def test_family_all_spouses(family, persons, persons_dict):
       [persons_dict['o']]
   assert family.all_spouses(persons_dict['o']) == \
       [persons_dict['n']]
+
+def test_family_change_name(family, persons_dict, names):
+  # Change person b's name to boo
+  newly_named = pedigree_lib.Person(name='boo', gender='female')
+  new_names = list(names)
+  new_names[2] = 'boo'
+  new_family = pedigree_lib.Family()
+  new_family.add_children(persons_dict['a'],
+      [persons_dict['b'], newly_named])
+  new_family.add_child(persons_dict['d'], persons_dict['e'])
+  new_family.add_child(persons_dict['d'], persons_dict['k'])
+  new_family.add_child(persons_dict['i'], persons_dict['j'])
+  new_family.add_child(persons_dict['i'], newly_named)
+  new_family.add_children(persons_dict['f'], [persons_dict['g'],
+      persons_dict['h']])
+  new_family.add_spouses(persons_dict['k'], [persons_dict['l'],
+      persons_dict['m']])
+  new_family.add_spouse(persons_dict['l'], persons_dict['k'])
+  new_family.add_spouse(persons_dict['m'], persons_dict['k'])
+  new_family.add_spouse(persons_dict['n'], persons_dict['o'])
+  new_family.add_spouse(persons_dict['o'], persons_dict['n'])
+  new_family.other_notes[persons_dict['a']] = ["This guy is named a"]
+  new_family.other_notes[persons_dict['d']] = ["This guy is named d"]
+
+  assert family != new_family
+  assert family.names() != new_names
+
+  family.change_name(persons_dict['c'], 'boo')
+
+  assert family == new_family
+  assert set(family.names()) == set(new_names)
+
 
 def test_family_name_to_person(family, persons_dict, names):
   for name in names:
