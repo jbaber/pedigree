@@ -876,6 +876,8 @@ def interact(yaml_filename):
         ]
     )
     change_made = False
+    if not next_move:
+      quit_yet = True
     if next_move in existing_relations:
       relationship = existing_relations[next_move][0]
       add_function = existing_relations[next_move][1]
