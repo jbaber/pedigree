@@ -1,4 +1,6 @@
 - [Package][] properly
+- Protect names with funny characters (e.g. quotaton marks) from interpretation
+  by yaml.
 - Make `interact` behavior the default
   - Then make it possible for someone to create a brand new family
     interactively.
