@@ -868,6 +868,7 @@ def interact(yaml_filename):
         "k. Add a new person",
         "l. See a floating chart in the browser",
         "m. See a rigid chart in the browser",
+        "n. Change an existing person's name",
         "q. Quit",
         ]
     )
@@ -906,6 +907,13 @@ def interact(yaml_filename):
           family.add_child(couple[0], kid)
           family.add_child(couple[1], kid)
           change_made = True
+    if next_move == "n. Change an existing person's name":
+      person = family.gui_choose_person("Who?", titlebar)
+      new_name = easygui.enterbox(
+        "Enter {}'s new name".format(person.name, titlebar))
+      if new_name:
+        family.change_name(person, new_name)
+        change_made = True
     if next_move == "j. Add a pair of spouses":
       person_1 = family.gui_choose_person_or_add("First person?",
           titlebar)
