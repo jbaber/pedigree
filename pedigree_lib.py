@@ -3,6 +3,10 @@ import re
 import networkx as nx
 import yaml
 import easygui
+import tempfile
+from urllib import pathname2url
+import webbrowser
+import os
 
 """
 Family is kept as a "directed multigraph" with Persons as
@@ -756,6 +760,22 @@ function transform(d) {
 </html>
 """
 
+def show_temp_floating_chart(family):
+
+  # Create a temporary file
+  html_file_descriptor, html_filename = tempfile.mkstemp()
+
+  # Put html of the floating chart in it
+  html_file = os.fdopen(html_file_descriptor, 'w')
+  for line in d3_html_page_generator(family):
+    html_file.write(line)
+  html_file.close()
+
+  # Open it in a browser
+  webbrowser.open('file:{}'.format(pathname2url(html_filename)))
+
+  # Don't delete it since the user may want to examine it.
+
 
 def dot_file_generator(family):
   """Generate a graphviz .dot file"""
@@ -816,6 +836,7 @@ def interact(yaml_filename):
        "i. Add new people as children of a couple",
        "j. Add a pair of spouses",
        "k. Add a new person",
+       "l. See a floating chart in the browser",
       ]
   )
   change_made = False
@@ -867,6 +888,8 @@ def interact(yaml_filename):
     person = family.gui_add_person("New person's name?", titlebar)
     if person:
       change_made = True
+  if next_move == "l. See a floating chart in the browser":
+    show_temp_floating_chart(family)
   if change_made:
     if easygui.ynbox("Save changes?", titlebar):
       with open(yaml_filename, 'w') as yaml_file:
