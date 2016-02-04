@@ -7,6 +7,7 @@ import tempfile
 from urllib import pathname2url
 import webbrowser
 import os
+import subprocess
 
 """
 Family is kept as a "directed multigraph" with Persons as
@@ -779,6 +780,29 @@ def show_temp_floating_chart(family):
 
   # Don't delete it since the user may want to examine it.
 
+def show_temp_rigid_chart(family):
+  """
+  Create a rigid chart in a temporary file and open it in the browser.
+  """
+  # Create a temporary directory
+  temp_dir = tempfile.mkdtemp()
+
+  # Put a .dot file there
+  dot_filename = os.path.join(temp_dir, "family_tree.dot")
+  with open(dot_filename, 'w') as dot_file:
+    for line in dot_file_generator(family):
+      dot_file.write(line)
+
+  # Generate .svg from .dot file
+  svg_filename = os.path.join(temp_dir, "family_tree.svg")
+  with open(svg_filename, 'w') as svg_file:
+    subprocess.Popen(['dot', '-Tsvg', dot_filename],
+        stdout=svg_file)
+
+  # Open it in a browser
+  webbrowser.open('file:{}'.format(pathname2url(svg_filename)))
+
+  # Don't delete it since the user may want to examine it.
 
 def dot_file_generator(family):
   """Generate a graphviz .dot file"""
@@ -840,6 +864,7 @@ def interact(yaml_filename):
        "j. Add a pair of spouses",
        "k. Add a new person",
        "l. See a floating chart in the browser",
+       "m. See a rigid chart in the browser",
       ]
   )
   change_made = False
@@ -893,6 +918,8 @@ def interact(yaml_filename):
       change_made = True
   if next_move == "l. See a floating chart in the browser":
     show_temp_floating_chart(family)
+  if next_move == "m. See a rigid chart in the browser":
+    show_temp_rigid_chart(family)
   if change_made:
     if easygui.ynbox("Save changes?", titlebar):
       with open(yaml_filename, 'w') as yaml_file:
