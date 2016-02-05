@@ -538,54 +538,42 @@ def yaml_to_family(yaml_file):
 
 
 def family_to_yaml(family):
-  people_part = "\n".join(sorted([
-    "  - {0}: {1}".format(person.name, person.gender)
+  people_part = [
+    {person.name: person.gender}
     for person in family.persons()
-  ]))
+  ]
   fathers = family.fathers()
   mothers = family.mothers()
   spouses = family.spouses()
   notes = family.notes()
-  fathers_part = []
+  fathers_part = {}
   for father in fathers:
-    fathers_part.append("  {}:".format(father.name))
+    kids = []
     for child in family.children(father):
-      fathers_part.append("    - {}".format(child.name))
-  fathers_part = "\n".join(fathers_part)
-  mothers_part = []
+      kids.append(child.name)
+    fathers_part[father.name] = kids
+  mothers_part = {}
   for mother in mothers:
-    mothers_part.append("  {}:".format(mother.name))
+    kids = []
     for child in family.children(mother):
-      mothers_part.append("    - {}".format(child.name))
-  mothers_part = "\n".join(mothers_part)
-  spouses_part = []
+      kids.append(child.name)
+    mothers_part[mother.name] = kids
+  spouses_part = {}
   for spouse in spouses:
-    spouses_part.append("  {}:".format(spouse.name))
+    sub_spouses = []
     for sub_spouse in family.all_spouses(spouse):
-      spouses_part.append("    - {}".format(sub_spouse.name))
-  spouses_part = "\n".join(spouses_part)
-  notes_part = []
+      sub_spouses.append(sub_spouse.name)
+    spouses_part[spouse.name] = sub_spouses
+  notes_part = {}
   for person in notes:
-    notes_part.append("  {}:".format(person.name))
-    for note in notes[person]:
-      notes_part.append("    - {}".format(note))
-  notes_part = "\n".join(notes_part)
-  return """people:
-{0}
----
-father:
-{1}
----
-mother:
-{2}
----
-spouse:
-{3}
----
-notes:
-{4}
-""".format(people_part, fathers_part, mothers_part,
-    spouses_part, notes_part)
+    notes_part[person.name] = notes[person]
+  return yaml.dump_all([
+    {'people': people_part},
+    {'father': fathers_part},
+    {'mother': mothers_part},
+    {'spouse': spouses_part},
+    {'notes': notes_part},
+  ])
 
 
 def biglist_to_family(biglist):
