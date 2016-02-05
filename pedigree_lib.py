@@ -860,32 +860,34 @@ def interact(yaml_filename):
   quit_yet = False
   while not quit_yet:
     new_relations = {
-      "a.  Add a new person as a full sibling":
+      "b.  Add a new person as a full sibling":
         ["full sibling", family.add_full_sibling, None],
-      "b.  Add a new person as a father":
+      "c.  Add a new person as a father":
         ["father", family.add_father, "male"],
-      "c.  Add a new person as a mother":
+      "d.  Add a new person as a mother":
         ["mother", family.add_mother, "female"],
-      "d.  Add a new person as a child":
+      "e.  Add a new person as a child":
         ["child", family.add_child, None],
     }
     existing_relations = {
-      "e.  Add an existing person as a full sibling":
+      "f.  Add an existing person as a full sibling":
         ["full_sibling", family.add_full_sibling],
-      "f.  Add an existing person as a father":
+      "g.  Add an existing person as a father":
         ["father", family.add_father],
-      "g.  Add an existing person as a mother":
+      "h.  Add an existing person as a mother":
         ["mother", family.add_mother],
-      "h.  Add an existing person as a child":
+      "i.  Add an existing person as a child":
         ["child", family.add_child],
     }
     next_move = easygui.choicebox("What would you like to do?",
         titlebar,
+        [
+        "a. Add a new person",
+        ] + \
         existing_relations.keys() + new_relations.keys() + \
         [
-        "i. Add new people as children of a couple",
-        "j. Add a pair of spouses",
-        "k. Add a new person",
+        "j. Add new people as children of a couple",
+        "k. Add a pair of spouses",
         "l. See a floating chart in the browser",
         "m. See a rigid chart in the browser",
         "n. Change an existing person's name",
@@ -918,7 +920,7 @@ def interact(yaml_filename):
         if rel:
           add_function(person, rel)
           change_made = True
-    if next_move == "i. Add new people as children of a couple":
+    if next_move == "j. Add new people as children of a couple":
       couple = family.gui_choose_couple_or_add("Choose a couple",
           titlebar)
 
@@ -938,7 +940,7 @@ def interact(yaml_filename):
         if new_name:
             family.change_name(person, new_name)
         change_made = True
-    if next_move == "j. Add a pair of spouses":
+    if next_move == "k. Add a pair of spouses":
       person_1 = family.gui_choose_person_or_add("First person?",
           titlebar)
       if person_1:
@@ -948,7 +950,7 @@ def interact(yaml_filename):
           family.add_spouse(person_1, person_2)
           family.add_spouse(person_2, person_1)
           change_made = True
-    if next_move == "k. Add a new person":
+    if next_move == "a. Add a new person":
       person = family.gui_add_person("New person's name?", titlebar)
       if person:
         change_made = True
