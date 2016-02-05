@@ -11,10 +11,20 @@ version = '0.1.0'
 
 help_text = """pedigree.py
 
+When run via
+
+    ./pedigree.py
+
+starts a primitive GUI to interact with and edit your relations.yaml file.
+
+For a quick example
+
+    ./pedigree.py -y examples/example.yaml
+
 Usage:
-  pedigree.py [--base-filename=<filename>] [--yaml-filename=<filename>] 
-  pedigree.py interact [--yaml-filename=<filename>] 
-  pedigree.py cleanup [--base-filename=<filename>] 
+  pedigree.py [--yaml-filename=<filename>]
+  pedigree.py generate [--base-filename=<filename>] [--yaml-filename=<filename>] 
+  pedigree.py cleanup [--base-filename=<filename>]
   pedigree.py -h | --help
   pedigree.py --version
 
@@ -26,7 +36,8 @@ Options:
   -b --base-filename=<filename>  XXX in output filenames XXX.svg, XXX.html, ...
                                  [DEFAULT: family_tree]
   cleanup                        Delete generated files (XXX.svg, etc.)
-  interact                       Start a GUI to alter the database"""
+  generate                       Simply create the .svg, .dot, .html files
+"""
 
 
 def main(yaml_filename, file_basename):
@@ -63,7 +74,9 @@ if __name__ == "__main__":
   if args['cleanup']:
     for extension in 'svg', 'dot', 'html':
       os.remove('{}.{}'.format(base_filename, extension))
-  elif args['interact']:
-    pedigree_lib.interact(yaml_filename)
-  else:
+
+  elif args['generate']:
     main(yaml_filename, base_filename)
+
+  else:
+    pedigree_lib.interact(yaml_filename)

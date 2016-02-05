@@ -4,6 +4,12 @@ few messy visualizations that do not favor patriliny over matriliny.  See `examp
 ![Screenshot 1](media/screenshot1.png)
 ![Screenshot 2](media/screenshot2.png)
 
+Example:
+--------
+If you're in a hurry to play,
+
+    ./pedigree.py -y examples/example.yaml
+
 Outputs:
 --------
   - `.html` file: a [d3][] visualization that can be opened in a web browser
