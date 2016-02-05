@@ -954,7 +954,7 @@ def interact(yaml_filename):
       person = family.gui_add_person("New person's name?", titlebar)
       if person:
         change_made = True
-    wait_num_seconds = 10
+    wait_num_seconds = 2
     popup_string = "\n\033[91mNew menu in {} seconds\033[0m".format(
         wait_num_seconds)
     if next_move == "l. See a floating chart in the browser":
