@@ -13,9 +13,10 @@ help_text = """pedigree.py
 
 When run via
 
-    ./pedigree.py
+    ./pedigree.py -y relations.yaml
 
-starts a primitive GUI to interact with and edit your relations.yaml file.
+starts a primitive GUI to interact with and edit your relations.yaml file.  (If you don't give a `relations.yaml` a blank one will
+be created for you.)
 
 For a quick example
 
@@ -70,6 +71,10 @@ if __name__ == "__main__":
   args = docopt(help_text, version=version)
   base_filename = args['--base-filename']
   yaml_filename = args['--yaml-filename']
+
+  # If yaml file doesn't exist, create a blank one
+  if not os.path.exists(yaml_filename):
+    pedigree_lib.create_blank_yaml(yaml_filename)
 
   if args['cleanup']:
     for extension in 'svg', 'dot', 'html':

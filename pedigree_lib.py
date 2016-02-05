@@ -585,6 +585,19 @@ def family_to_yaml(family):
   ])
 
 
+def create_blank_yaml(filename):
+  with open(filename, 'w') as yaml_file:
+    blank_entries = yaml.dump_all([
+      {'people': []},
+      {'father': []},
+      {'mother': []},
+      {'spouse': []},
+      {'notes': {}},
+    ])
+    import pdb; pdb.set_trace()
+    yaml_file.write(blank_entries)
+
+
 def biglist_to_family(biglist):
   """
   Take `biglist` as would be returned from a .yaml file
