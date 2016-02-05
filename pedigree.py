@@ -72,8 +72,8 @@ if __name__ == "__main__":
   base_filename = args['--base-filename']
   yaml_filename = args['--yaml-filename']
 
-  # If yaml file doesn't exist, create a blank one
-  if not os.path.exists(yaml_filename):
+  # If yaml file doesn't exist or is completely empty, create a blank one
+  if not os.path.exists(yaml_filename) or os.stat(yaml_filename).st_size == 0:
     pedigree_lib.create_blank_yaml(yaml_filename)
 
   if args['cleanup']:

@@ -594,7 +594,6 @@ def create_blank_yaml(filename):
       {'spouse': []},
       {'notes': {}},
     ])
-    import pdb; pdb.set_trace()
     yaml_file.write(blank_entries)
 
 
