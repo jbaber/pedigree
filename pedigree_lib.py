@@ -67,6 +67,15 @@ class Person(object):
   def uid(self):
     return name_to_uid(self.name)
 
+  def first_name(self):
+    """
+    Just return the non-unique first name
+    """
+    return first_name(self.name)
+
+def first_name(name):
+  return name.split(' ')[0]
+
 
 class Family(object):
   """
@@ -773,7 +782,7 @@ def show_temp_floating_chart(family):
 
   # Don't delete it since the user may want to examine it.
 
-def show_temp_rigid_chart(family):
+def show_temp_rigid_chart(family, first_names_only=False):
   """
   Create a rigid chart in a temporary file and open it in the browser.
   """
@@ -783,7 +792,7 @@ def show_temp_rigid_chart(family):
   # Put a .dot file there
   dot_filename = os.path.join(temp_dir, "family_tree.dot")
   with open(dot_filename, 'w') as dot_file:
-    for line in dot_file_generator(family):
+    for line in dot_file_generator(family, first_names_only):
       dot_file.write(line + "\n")
 
   # Generate .svg from .dot file
@@ -800,15 +809,19 @@ def show_temp_rigid_chart(family):
 
   # Don't delete it since the user may want to examine it.
 
-def dot_file_generator(family):
+def dot_file_generator(family, first_names_only=False):
   """Generate a graphviz .dot file"""
 
   yield "digraph family_tree {"
 
   # Set up the nodes
   for person_name in family.names():
+    uid = name_to_uid(person_name)
+    name = person_name
+    if first_names_only:
+      name = first_name(name)
     yield '  "{}" [label="{}", shape="box"];'.format(
-        name_to_uid(person_name), person_name)
+        uid, name)
 
   # Set up the connections
   for father in family.fathers():
@@ -864,6 +877,7 @@ def interact(yaml_filename):
         "l. See a floating chart in the browser",
         "m. See a rigid chart in the browser",
         "n. Change an existing person's name",
+        "o. See a rigid chart in the browser (first names only)",
         "q. Quit",
         ]
     )
@@ -936,6 +950,10 @@ def interact(yaml_filename):
     if next_move == "m. See a rigid chart in the browser":
       print(popup_string)
       show_temp_rigid_chart(family)
+      time.sleep(wait_num_seconds)
+    if next_move == "o. See a rigid chart in the browser (first names only)":
+      print(popup_string)
+      show_temp_rigid_chart(family, first_names_only=True)
       time.sleep(wait_num_seconds)
     if next_move == "q. Quit":
       quit_yet = True
