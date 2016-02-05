@@ -404,7 +404,8 @@ def test_family_to_yaml(family):
   with open('examples/example2.yaml') as output_file:
     right_side = output_file.read()
   left_side = pedigree_lib.family_to_yaml(family)
-  assert left_side == right_side
+  assert pedigree_lib.yaml_to_family(left_side) == \
+      pedigree_lib.yaml_to_family(right_side)
 
 def test_d3_html_page_generator():
   with open('examples/example.yaml') as input_file:
