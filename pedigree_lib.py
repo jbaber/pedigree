@@ -52,11 +52,17 @@ class Person(object):
       return True
     return (self.name != other.name)
 
-  # Really, only care about the name.  Persons with
-  # different genders end up with the same hash if
-  # they have the same name.
-  def __hash__(self):
-    return hash(self.name)
+  def __lt__(self, other):
+    return self.name < other.name
+
+  def __gt__(self, other):
+    return self.name > other.name
+
+  def __le__(self, other):
+    return self.name >= other.name
+
+  def __ge__(self, other):
+    return self.name <= other.name
 
   def __str__(self):
     return self.name
@@ -113,25 +119,25 @@ class Family(object):
     their_fathers = other.fathers()
     our_spouses = self.spouses()
     their_spouses = other.spouses()
-    if set(our_persons) != set(their_persons):
+    if sorted(our_persons) != sorted(their_persons):
       return False
-    if set(our_mothers) != set(their_mothers):
+    if sorted(our_mothers) != sorted(their_mothers):
       return False
-    if set(our_fathers) != set(their_fathers):
+    if sorted(our_fathers) != sorted(their_fathers):
       return False
-    if set(our_spouses) != set(their_spouses):
+    if sorted(our_spouses) != sorted(their_spouses):
       return False
     for father in our_fathers:
-      if set(self.children(father)) != \
-          set(other.children(father)):
+      if sorted(self.children(father)) != \
+          sorted(other.children(father)):
         return False
     for mother in our_mothers:
-      if set(self.children(mother)) != \
-          set(other.children(mother)):
+      if sorted(self.children(mother)) != \
+          sorted(other.children(mother)):
         return False
     for spouse in our_spouses:
-      if set(self.all_spouses(spouse)) != \
-          set(other.all_spouses(spouse)):
+      if sorted(self.all_spouses(spouse)) != \
+          sorted(other.all_spouses(spouse)):
         return False
 
     return True

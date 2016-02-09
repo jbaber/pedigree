@@ -147,9 +147,9 @@ def test_family_add_full_sibling(family, persons, fathers,
   # spouses: k <-> l, m    n <-> o
   mom = pedigree_lib.Person(name='?', gender="female")
 
-  assert set(family.persons()) == set(persons + [p, mom])
+  assert sorted(family.persons()) == sorted(persons + [p, mom])
   assert set(family.fathers()) == set(fathers)
-  assert set(family.mothers()) == set(mothers + [mom])
+  assert sorted(family.mothers()) == sorted(mothers + [mom])
   assert set(family.children(persons_dict['a'])) == \
       set([persons_dict['b'], persons_dict['c'], p])
   assert set(family.children(mom)) == set([persons_dict['b'], p])
@@ -168,16 +168,16 @@ def test_family_add_full_sibling(family, persons, fathers,
   dad = pedigree_lib.Person(name='??', gender="male")
   
   # Creates the sibling and a father
-  assert set(family.persons()) == \
-      set(persons + [p, q, mom, dad])
-  assert set(family.fathers()) == set(fathers + [dad])
-  assert set(family.mothers()) == set(mothers + [mom])
-  assert set(family.children(persons_dict['a'])) == \
-      set([persons_dict['b'], persons_dict['c'], p])
-  assert set(family.children(persons_dict['i'])) == \
-      set([persons_dict['j'], persons_dict['c'], q])
-  assert set(family.children(mom)) == set([persons_dict['b'], p])
-  assert set(family.children(dad)) == set([persons_dict['j'], q])
+  assert sorted(family.persons()) == \
+      sorted(persons + [p, q, mom, dad])
+  assert sorted(family.fathers()) == sorted(fathers + [dad])
+  assert sorted(family.mothers()) == sorted(mothers + [mom])
+  assert sorted(family.children(persons_dict['a'])) == \
+      sorted([persons_dict['b'], persons_dict['c'], p])
+  assert sorted(family.children(persons_dict['i'])) == \
+      sorted([persons_dict['j'], persons_dict['c'], q])
+  assert sorted(family.children(mom)) == sorted([persons_dict['b'], p])
+  assert sorted(family.children(dad)) == sorted([persons_dict['j'], q])
 
   # Add a full sibling to an existing nuclear family
   r = pedigree_lib.Person(name='r', gender='female')
@@ -187,16 +187,16 @@ def test_family_add_full_sibling(family, persons, fathers,
   # fathers: a -> b, c, p, r  d -> e, k  ?? -> j, q
   # mothers: i -> j, c, q, r  f -> g, h   ? -> b, p
   # spouses: k <-> l, m       n <-> o
-  assert set(family.persons()) == \
-      set(persons + [p, q, r, mom, dad])
-  assert set(family.fathers()) == set(fathers + [dad])
-  assert set(family.mothers()) == set(mothers + [mom])
-  assert set(family.children(persons_dict['a'])) == \
-      set([persons_dict['b'], persons_dict['c'], p, r])
-  assert set(family.children(persons_dict['i'])) == \
-      set([persons_dict['j'], persons_dict['c'], q, r])
-  assert set(family.children(mom)) == set([persons_dict['b'], p])
-  assert set(family.children(dad)) == set([persons_dict['j'], q])
+  assert sorted(family.persons()) == \
+      sorted(persons + [p, q, r, mom, dad])
+  assert sorted(family.fathers()) == sorted(fathers + [dad])
+  assert sorted(family.mothers()) == sorted(mothers + [mom])
+  assert sorted(family.children(persons_dict['a'])) == \
+      sorted([persons_dict['b'], persons_dict['c'], p, r])
+  assert sorted(family.children(persons_dict['i'])) == \
+      sorted([persons_dict['j'], persons_dict['c'], q, r])
+  assert sorted(family.children(mom)) == sorted([persons_dict['b'], p])
+  assert sorted(family.children(dad)) == sorted([persons_dict['j'], q])
 
 def test_family_add_father(family, fathers, mothers, persons,
     spouses, persons_dict):
