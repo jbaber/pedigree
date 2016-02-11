@@ -15,7 +15,7 @@ import logging
 Family is kept as a "directed multigraph" with Persons as
 nodes.  Nodes can have more than one directed edge between
 them.  Edges have a relation_type attribute that takes one
-of the values "mother", "father", "spouse"
+of the values "spouse", "father", "spouse"
 
 Persons have the attributes "gender" and "other" to be
 filled with anything else useful to the person.
@@ -89,13 +89,13 @@ class Family(object):
   Family is kept as a "directed multigraph" with Persons as
   nodes.  Nodes can have more than one directed edge between
   them.  Edges have a relation_type attribute that takes one
-  of the values "mother", "father", "spouse"
+  of the values "spouse", "father", "spouse"
 
   Represent a family as a collection of Persons each with a
   unique .name property and connections between them.
   """
   def __init__(self, persons=None):
-    # Full directed multipgraph of Persons with mother, father,
+    # Full directed multipgraph of Persons with spouse, father,
     # and spouse as all the relation_type's.
     self.graph = nx.MultiDiGraph()
     if persons == None:
