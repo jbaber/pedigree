@@ -9,6 +9,7 @@ import webbrowser
 import os
 import subprocess
 import time
+import logging
 
 """
 Family is kept as a "directed multigraph" with Persons as
@@ -103,10 +104,10 @@ class Family(object):
       self.graph.add_nodes_from(persons)
 
     # Interesting data about individuals is kept in the
-    # `other_notes` dict, keyed by Persons.  May add pairs
+    # `notes` dict, keyed by Persons.  May add pairs
     # of Persons as a key so that notes can be made on
     # edges.
-    self.other_notes = {}
+    self.notes = {}
 
   def __eq__(self, other):
     # Two families are the same if they have the same lists of
@@ -162,6 +163,17 @@ class Family(object):
 
   def change_name(self, person, new_name):
     person.name = new_name
+
+  def add_note(self, person, new_note):
+    if person not in self.notes:
+      self.notes[person] = [new_note]
+    else:
+      self.notes[person].append(new_note)
+
+  def delete_note(self, person, to_be_deleted):
+    if person in self.notes:
+      if to_be_deleted in self.notes[person]:
+        self.notes[person].remove(to_be_deleted)
 
   def add_child(self, parent, child):
     # Does nothing if `parent` already present
@@ -368,14 +380,30 @@ class Family(object):
     return cur_spouses
   def persons(self):
     return self.graph.nodes()
-  def notes(self):
-    return self.other_notes
 
-  def gui_choose_person(self, message, title):
+  def gui_choose_person(self, message, title, persons=None):
+    if persons == None:
+      persons = self.persons()
     chosen = easygui.choicebox(message, title,
-      [person.name for person in self.persons()]
+      [person.name for person in persons]
     )
     return self.name_to_person(chosen)
+
+  def gui_choose_note(self, person, title):
+    if person not in self.notes:
+      return None
+
+    chosen = easygui.choicebox("Which note?", title,
+      ["- " + note for note in self.notes[person]]
+    )
+    return chosen[2: ]
+
+  def gui_display_notes(self, person):
+    easygui.textbox(
+      person.name,
+      "",
+      "\n".join(["- " + note for note in self.notes[person]])
+    )
 
   def gui_choose_person_or_add(self, message, title, gender=None):
     chosen = easygui.choicebox(message, title,
@@ -399,6 +427,13 @@ class Family(object):
       return new_person
     else:
       return self.name_to_person(chosen)
+
+  def people_with_notes(self):
+    return [
+        person
+        for person in self.persons()
+        if person in self.notes
+      ]
 
   def string_to_couple(self, string):
     """
@@ -513,10 +548,11 @@ def yaml_to_family(yaml_file):
   except yaml.constructor.ConstructorError, e:
     print("{} is not a well-formed YAML file.  Maybe some names have special" \
         " characters in them?".format(yaml_file.name))
-  people  = people['people']
-  fathers = fathers['father']
-  mothers = mothers['mother']
-  spouses = spouses['spouse']
+  people  = people['people'] if people['people'] else []
+  fathers = fathers['father'] if fathers['father'] else []
+  mothers = mothers['mother'] if mothers['mother'] else []
+  spouses = spouses['spouse'] if spouses['spouse'] else []
+  notes = notes['notes'] if notes['notes'] else {}
 
   persons_dict = {}
   for person in people:
@@ -549,6 +585,15 @@ def yaml_to_family(yaml_file):
     ]
     family.add_spouses(spouse_person, spouse_primes)
 
+  for person_name in notes:
+    if person_name in persons_dict:
+
+      # Store the note with the corresponding Person as key.
+      family.notes[persons_dict[person_name]] = notes[person_name]
+    else:
+      logging.warn("Note\n\n{}\n\nprovided for {}, but they're not listed in "
+          "the people section.")
+
   return family
 
 
@@ -560,7 +605,7 @@ def family_to_yaml(family):
   fathers = family.fathers()
   mothers = family.mothers()
   spouses = family.spouses()
-  notes = family.notes()
+  notes = family.notes
   fathers_part = {}
   for father in fathers:
     kids = []
@@ -898,7 +943,10 @@ def interact(yaml_filename):
         "m. See a rigid chart in the browser",
         "n. Change an existing person's name",
         "o. See a rigid chart in the browser (first names only)",
+        "p. Add a note to a person",
         "q. Quit",
+        "r. See notes about a person",
+        "s. Delete a note from a person",
         ]
     )
     change_made = False
@@ -939,13 +987,46 @@ def interact(yaml_filename):
           family.add_child(couple[1], kid)
           change_made = True
     if next_move == "n. Change an existing person's name":
-      person = family.gui_choose_person("Who?", titlebar)
+      person = family.gui_choose_person("Whom?", titlebar)
       if person:
         new_name = easygui.enterbox(
             "Enter {}'s new name".format(person.name, titlebar))
         if new_name:
             family.change_name(person, new_name)
         change_made = True
+    if next_move == "p. Add a note to a person":
+      person = family.gui_choose_person("To whom?", titlebar)
+      if person:
+        new_note = easygui.enterbox(
+            "Enter anything about {}".format(person.name))
+        if new_note:
+            family.add_note(person, new_note)
+            change_made = True
+    if next_move == "s. Delete a note from a person":
+      people = family.people_with_notes()
+      person = None
+      if len(people) == 0:
+        easygui.textbox(titlebar, "", "Nobody has any notes yet.")
+      elif len(people) == 1:
+        person = people[0] 
+      else:
+        person = family.gui_choose_person("Whom?", titlebar, people)
+      if person:
+        to_be_deleted = family.gui_choose_note(person, titlebar)
+        if to_be_deleted:
+          family.delete_note(person, to_be_deleted)
+          change_made = True
+    if next_move == "r. See notes about a person":
+      people = family.people_with_notes()
+      person = None
+      if len(people) == 0:
+        easygui.textbox(titlebar, "", "Nobody has any notes yet.")
+      elif len(people) == 1:
+        person = people[0] 
+      else:
+        person = family.gui_choose_person("Whom?", titlebar, people)
+      if person:
+        family.gui_display_notes(person)
     if next_move == "k. Add a pair of spouses":
       person_1 = family.gui_choose_person_or_add("First person?",
           titlebar)

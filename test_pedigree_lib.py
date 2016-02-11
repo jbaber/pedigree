@@ -54,8 +54,8 @@ def family(persons_dict):
   to_return.add_spouse(persons_dict['m'], persons_dict['k'])
   to_return.add_spouse(persons_dict['n'], persons_dict['o'])
   to_return.add_spouse(persons_dict['o'], persons_dict['n'])
-  to_return.other_notes[persons_dict['a']] = ["This guy is named a"]
-  to_return.other_notes[persons_dict['d']] = ["This guy is named d"]
+  to_return.notes[persons_dict['a']] = ["This guy is named a"]
+  to_return.notes[persons_dict['d']] = ["This guy is named d"]
   return to_return
 
 @pytest.fixture
@@ -114,7 +114,7 @@ def test_family(family, fathers, mothers, spouses,
   assert(family.fathers() == set(fathers))
   assert(family.mothers() == set(mothers))
   assert(family.spouses() == set(spouses))
-  assert(family.notes() == notes)
+  assert(family.notes == notes)
   assert(set(family.names()) == set(names))
 
 def test_name_to_uid(names, name_to_uid):
@@ -358,8 +358,8 @@ def test_family_change_name(family, persons_dict, names):
   new_family.add_spouse(persons_dict['m'], persons_dict['k'])
   new_family.add_spouse(persons_dict['n'], persons_dict['o'])
   new_family.add_spouse(persons_dict['o'], persons_dict['n'])
-  new_family.other_notes[persons_dict['a']] = ["This guy is named a"]
-  new_family.other_notes[persons_dict['d']] = ["This guy is named d"]
+  new_family.notes[persons_dict['a']] = ["This guy is named a"]
+  new_family.notes[persons_dict['d']] = ["This guy is named d"]
 
   assert family != new_family
   assert family.names() != new_names
