@@ -1,33 +1,31 @@
 #!/usr/bin/env python
 
-import yaml
-import hashlib
 import subprocess
 from docopt import docopt
 import os
-import pedigree_lib
+from pedigree import pedigree_lib
 
 version = '0.1.0'
 
-help_text = """pedigree.py
+help_text = """pedigree
 
 When run via
 
-    ./pedigree.py -y relations.yaml
+    pedigree -y relations.yaml
 
 starts a primitive GUI to interact with and edit your relations.yaml file.  (If you don't give a `relations.yaml` a blank one will
 be created for you.)
 
 For a quick example
 
-    ./pedigree.py -y examples/example.yaml
+    pedigree -y examples/example.yaml
 
 Usage:
-  pedigree.py [--yaml-filename=<filename>]
-  pedigree.py generate [--base-filename=<filename>] [--yaml-filename=<filename>] 
-  pedigree.py cleanup [--base-filename=<filename>]
-  pedigree.py -h | --help
-  pedigree.py --version
+  pedigree [--yaml-filename=<filename>]
+  pedigree generate [--base-filename=<filename>] [--yaml-filename=<filename>] 
+  pedigree cleanup [--base-filename=<filename>]
+  pedigree -h | --help
+  pedigree --version
 
 Options:
   -h --help                      Show this screen.
@@ -41,7 +39,24 @@ Options:
 """
 
 
-def main(yaml_filename, file_basename):
+def main():
+  args = docopt(help_text, version=version)
+  base_filename = args['--base-filename']
+  yaml_filename = args['--yaml-filename']
+
+  # If yaml file doesn't exist or is completely empty, create a blank one
+  if not os.path.exists(yaml_filename) or os.stat(yaml_filename).st_size == 0:
+    pedigree_lib.create_blank_yaml(yaml_filename)
+
+  if args['cleanup']:
+    for extension in 'svg', 'dot', 'html':
+      os.remove('{}.{}'.format(base_filename, extension))
+
+  elif args['generate']:
+    main(yaml_filename, base_filename)
+
+  else:
+    pedigree_lib.interact(yaml_filename)
 
   # Open the YAML file or fail gracefully
   try:
@@ -68,20 +83,4 @@ def main(yaml_filename, file_basename):
         stdout=svg_file)
 
 if __name__ == "__main__":
-  args = docopt(help_text, version=version)
-  base_filename = args['--base-filename']
-  yaml_filename = args['--yaml-filename']
-
-  # If yaml file doesn't exist or is completely empty, create a blank one
-  if not os.path.exists(yaml_filename) or os.stat(yaml_filename).st_size == 0:
-    pedigree_lib.create_blank_yaml(yaml_filename)
-
-  if args['cleanup']:
-    for extension in 'svg', 'dot', 'html':
-      os.remove('{}.{}'.format(base_filename, extension))
-
-  elif args['generate']:
-    main(yaml_filename, base_filename)
-
-  else:
-    pedigree_lib.interact(yaml_filename)
+  main()
