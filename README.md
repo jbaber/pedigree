@@ -1,4 +1,4 @@
-`pedigree.py` takes a [yaml][] file like that in `examples/example.yaml` ([source][]) and outputs a
+`pedigree` takes a [yaml][] file like that in `examples/example.yaml` ([source][]) and outputs a
 few messy visualizations that do not favor patriliny over matriliny.  See `examples/` for example output.
 
 ![Screenshot 1](media/screenshot1.png)
@@ -8,7 +8,7 @@ Example:
 --------
 If you're in a hurry to play,
 
-    ./pedigree.py -y examples/example.yaml
+    pedigree -y examples/example.yaml
 
 Outputs:
 --------
@@ -18,14 +18,15 @@ Outputs:
 
 Installation:
 -------------
-Until I figure out [how to make a Python package][ugh] (or someone does it
-right in a fork), I will list dependencies here:
-  - Python Packages:
-    - `pip install --user -r requirements.txt`
-  - Linux programs:
-    - `sudo apt-get install` [graphviz][dot]
-Once those dependencies are installed, `./pedigree.py --help` should tell you
-what to do.
+You must first install [graphviz][dot] via
+
+    sudo apt-get install [graphviz][dot]
+
+Then,
+
+    pip install pedigree
+
+`pedigree --help` will tell you your options.
 
 Caveats:
 --------
@@ -37,5 +38,4 @@ Caveats:
 [yaml]: https://en.wikipedia.org/wiki/YAML
 [d3]: http://d3js.org/
 [dot]: https://en.wikipedia.org/wiki/Graphviz
-[ugh]: http://blog.ionelmc.ro/2015/02/24/the-problem-with-packaging-in-python/
 [source]: https://en.wikipedia.org/wiki/Template:Flintstones_family_tree
