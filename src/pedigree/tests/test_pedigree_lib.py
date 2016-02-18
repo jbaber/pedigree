@@ -1,4 +1,4 @@
-import pedigree_lib
+from pedigree import pedigree_lib
 import pytest
 import networkx as nx
 import copy
