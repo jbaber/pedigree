@@ -22,4 +22,6 @@ if __name__ == "__main__":
         package_dir={"": "src"},
         zip_safe=False,
         install_requires=requirements,
+        include_package_data=True,
+        data_files=[('examples', ['examples/example.yaml'])]
     )

@@ -2,6 +2,24 @@ from pedigree import pedigree_lib
 import pytest
 import networkx as nx
 import copy
+import sys
+import os
+
+@pytest.fixture
+def example_yaml_path():
+  return os.path.join(sys.prefix, 'examples/example.yaml')
+@pytest.fixture
+def example2_yaml_path():
+  return os.path.join(sys.prefix, 'examples/example2.yaml')
+@pytest.fixture
+def example_html_path():
+  return os.path.join(sys.prefix, 'examples/example.html')
+@pytest.fixture
+def example2_html_path():
+  return os.path.join(sys.prefix, 'examples/example2.html')
+@pytest.fixture
+def example2_dot_path():
+  return os.path.join(sys.prefix, 'examples/example2.dot')
 
 @pytest.fixture
 def persons_dict():
@@ -394,30 +412,30 @@ def test_new_anonymous_name(family):
   assert(family.new_anonymous_name() == '???????')
 
 
-def test_yaml_to_family(family):
-  with open('examples/example2.yaml') as input_file:
+def test_yaml_to_family(family, example2_yaml_path):
+  with open(example2_yaml_path) as input_file:
     assert pedigree_lib.yaml_to_family(input_file.read()) == \
         family
 
 
-def test_family_to_yaml(family):
-  with open('examples/example2.yaml') as output_file:
+def test_family_to_yaml(family, example2_yaml_path):
+  with open(example2_yaml_path) as output_file:
     right_side = output_file.read()
   left_side = pedigree_lib.family_to_yaml(family)
   assert pedigree_lib.yaml_to_family(left_side) == \
       pedigree_lib.yaml_to_family(right_side)
 
 @pytest.mark.xfail()
-def test_d3_html_page_generator():
-  with open('examples/example.yaml') as input_file:
+def test_d3_html_page_generator(example_yaml_path, example_html_path):
+  with open(example_yaml_path) as input_file:
     left = "\n".join(pedigree_lib.d3_html_page_generator(
         pedigree_lib.yaml_to_family(input_file)))
-    with open('examples/example.html') as output_file:
+    with open(example_html_path) as output_file:
       right = output_file.read()
     assert  left == right
 
-  with open('examples/example2.yaml') as input_file:
-    with open('examples/example2.html') as output_file:
+  with open(example2_yaml_path) as input_file:
+    with open(example2_html_path) as output_file:
       assert(
         "\n".join(pedigree_lib.d3_html_page_generator(
           pedigree_lib.yaml_to_family(input_file))) == \
@@ -425,9 +443,9 @@ def test_d3_html_page_generator():
       )
 
 @pytest.mark.xfail()
-def test_dot_file_generator():
-  with open('examples/example2.yaml') as input_file:
-    with open('examples/example2.dot') as output_file:
+def test_dot_file_generator(example2_yaml_path, example2_dot_path):
+  with open(example2_yaml_path) as input_file:
+    with open(example2_dot_path) as output_file:
       received = "\n".join(pedigree_lib.dot_file_generator(
           pedigree_lib.yaml_to_family(input_file))) + "\n"
       assert(received == output_file.read())
