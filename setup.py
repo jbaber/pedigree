@@ -16,6 +16,9 @@ if __name__ == "__main__":
         author_email="python@frundle.com",
         long_description=long_description,
         packages=find_packages(where="src"),
+        entry_points = {
+          'console_scripts': ['pedigree=pedigree.main:main'],
+        },
         package_dir={"": "src"},
         zip_safe=False,
         install_requires=requirements,
