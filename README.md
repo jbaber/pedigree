@@ -20,7 +20,7 @@ Installation:
 -------------
 You must first install [graphviz][dot] via
 
-    sudo apt-get install [graphviz][dot]
+    sudo apt-get install graphviz
 
 Then,
 
