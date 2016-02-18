@@ -38,7 +38,6 @@ Options:
   generate                       Simply create the .svg, .dot, .html files
 """
 
-
 def main():
   args = docopt(help_text, version=version)
   base_filename = args['--base-filename']
@@ -49,38 +48,13 @@ def main():
     pedigree_lib.create_blank_yaml(yaml_filename)
 
   if args['cleanup']:
-    for extension in 'svg', 'dot', 'html':
-      os.remove('{}.{}'.format(base_filename, extension))
+    pedigree_lib.cleanup_files(yaml_filename, base_filename)
 
   elif args['generate']:
-    main(yaml_filename, base_filename)
+    pedigree_lib.generate_files(yaml_filename, base_filename)
 
   else:
     pedigree_lib.interact(yaml_filename)
-
-  # Open the YAML file or fail gracefully
-  try:
-    with open(yaml_filename) as f:
-      family = pedigree_lib.yaml_to_family(f)
-  except IOError, e:
-    print("\n\033[91mCouldn't open {}\033[0m\n".format(e.filename))
-    print(help_text)
-    exit(1)
-
-  # Generate d3 html page
-  with open('{}.html'.format(file_basename), 'w') as f:
-    for line in pedigree_lib.d3_html_page_generator(family):
-      f.write(line)
-
-  # Generate graphviz .dot file
-  with open('{}.dot'.format(file_basename), 'w') as f:
-    for line in pedigree_lib.dot_file_generator(family):
-      f.write(line + "\n")
-
-  # Generate .svg from .dot file
-  with open('{}.svg'.format(file_basename), 'w') as svg_file:
-    subprocess.Popen(['dot', '-Tsvg', '{}.dot'.format(file_basename)],
-        stdout=svg_file)
 
 if __name__ == "__main__":
   main()

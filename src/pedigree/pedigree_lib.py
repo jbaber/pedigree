@@ -1062,3 +1062,35 @@ def interact(yaml_filename):
       if easygui.ynbox("Save changes?", titlebar):
         with open(yaml_filename, 'w') as yaml_file:
           yaml_file.write(family_to_yaml(family))
+
+
+def cleanup_files(yaml_filename, base_filename):
+  for extension in 'svg', 'dot', 'html':
+    os.remove('{}.{}'.format(base_filename, extension))
+
+
+def generate_files(yaml_filename, base_filename):
+
+  # Open the YAML file or fail gracefully
+  try:
+    with open(yaml_filename) as f:
+      family = pedigree_lib.yaml_to_family(f)
+  except IOError, e:
+    print("\n\033[91mCouldn't open {}\033[0m\n".format(e.filename))
+    print(help_text)
+    exit(1)
+
+  # Generate d3 html page
+  with open('{}.html'.format(file_basename), 'w') as f:
+    for line in pedigree_lib.d3_html_page_generator(family):
+      f.write(line)
+
+  # Generate graphviz .dot file
+  with open('{}.dot'.format(file_basename), 'w') as f:
+    for line in pedigree_lib.dot_file_generator(family):
+      f.write(line + "\n")
+
+  # Generate .svg from .dot file
+  with open('{}.svg'.format(file_basename), 'w') as svg_file:
+    subprocess.Popen(['dot', '-Tsvg', '{}.dot'.format(file_basename)],
+        stdout=svg_file)
