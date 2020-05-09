@@ -1,3 +1,5 @@
+- Remove overly ambitious interactive GUI editor or
+  separate it into a different module
 - [Package][] properly
 - Make `interact` behavior the default
   - Then make it possible for someone to create a brand new family
