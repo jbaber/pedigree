@@ -11,6 +11,7 @@ import subprocess
 import time
 import logging
 from collections import Iterable
+import toml
 
 """
 Family is kept as a "directed multigraph" with Persons as
@@ -32,22 +33,35 @@ class PersonExistsError(Exception):
   pass
 
 
-class Person(object):
+class Person:
   """
   Two Persons are identical if they have identical uids.
 
   `uid` is cast to an integer by the constructor
   `given_names` should be iterable
   """
-  def __init__(self, surname, given_names, gender, uid):
+  def __init__(self, uid, *, surname="", given_names=None, gender="?", nickname=None, notes=None):
+    if given_names == None:
+      given_names = ["???"]
+    if notes == None:
+      notes = []
     self.surname = surname
     self.gender = gender
+    self.nickname = nickname
+    self.notes = notes
     self.uid = int(uid)
-    if not isintance(given_names, Iterable):
+    if not isinstance(given_names, Iterable):
       raise TypeError("Person constructor given non-iterable `given_names`")
-    if len(given_name) < 1:
+    if len(given_names) < 1:
       raise TypeError("Person needs at least one given name.")
     self.given_names = given_names
+
+  def from_dict(some_dict):
+    try:
+      return Person(**some_dict)
+    except TypeError as e:
+      print("Person.from_dict's argument needs a uid field")
+      raise e
 
   def __hash__(self):
     return self.uid
@@ -71,18 +85,18 @@ def first_name(name):
   return name.split(' ')[0]
 
 
-class Family(object):
+class Family:
   """
   Family is kept as a "directed multigraph" with Persons as
   nodes.  Nodes can have more than one directed edge between
   them.  Edges have a relation_type attribute that takes one
-  of the values "spouse", "father", "spouse"
+  of the values "mother", "father", "spouse"
 
   Represent a family as a collection of Persons each with a
   unique .name property and connections between them.
   """
   def __init__(self, persons=None):
-    # Full directed multipgraph of Persons with spouse, father,
+    # Full directed multipgraph of Persons with mother, father,
     # and spouse as all the relation_type's.
     self.graph = nx.MultiDiGraph()
     if persons == None:
@@ -139,14 +153,23 @@ class Family(object):
   def persons(self):
     return self.graph.nodes()
 
+  def uids(self):
+    return [person.uid for person in self.persons()]
+
   def names(self):
-    return [person.name for person in self.persons()]
+    return [str(person) for person in self.persons()]
 
   def name_to_person(self, name):
     for person in self.persons():
       if person.name == name:
         return person
     return None
+
+  def uid_to_person(self, uid):
+    for person in self.persons():
+      if person.uid == uid:
+        return person
+    raise TypeError(f"No person has UID {uid}")
 
   def change_name(self, person, new_name):
     person.name = new_name
@@ -163,12 +186,14 @@ class Family(object):
         self.notes[person].remove(to_be_deleted)
 
   def add_child(self, parent, child):
+
     # Does nothing if `parent` already present
     self.graph.add_node(parent)
+
     relation_type = None
-    if parent.gender == "male":
+    if parent.gender == "m":
       relation_type = "father"
-    elif parent.gender == "female":
+    elif parent.gender == "f":
       relation_type = "mother"
     else:
       raise GenderError("Without a gender on {}, can't tell"
@@ -520,60 +545,96 @@ def split_biglist(biglist):
   return fathers, mothers, spouses
 
 
-def yaml_to_family(yaml_file):
+def toml_to_family(toml_filename):
   family = Family()
 
   try:
-    people, fathers, mothers, spouses, notes = \
-        yaml.load_all(yaml_file)
-  except yaml.constructor.ConstructorError as e:
-    print("{} is not a well-formed YAML file.  Maybe some names have special" \
-        " characters in them?".format(yaml_file.name))
-  people  = people['people'] if people['people'] else []
-  fathers = fathers['father'] if fathers['father'] else []
-  mothers = mothers['mother'] if mothers['mother'] else []
-  spouses = spouses['spouse'] if spouses['spouse'] else []
-  notes = notes['notes'] if notes['notes'] else {}
+    big_dict = toml.load(toml_filename)
+  except toml.decoder.TomlDecodeError as e:
+    print(f"\033[0;31m{toml_filename} is not a well-formed toml file.")
+    print("  Maybe some names have special characters in them?\033[0m")
+    raise e
 
-  persons_dict = {}
+  # TODO Do this with defaultdict somehow not too verbosely
+  people  = big_dict['people'] if 'people' in big_dict else []
+
+  father_uids = []
+  if 'father' in big_dict:
+    father_uids = [
+      father_tuple[0]
+      for father_tuple in big_dict['father']
+    ]
+
+  mother_uids = []
+  if 'mother' in big_dict:
+    mother_uids = [
+      mother_tuple[0]
+      for mother_tuple in big_dict['mother']
+    ]
+
+  spouse_uids = []
+  if 'spouse' in big_dict:
+    spouse_uids = [
+      spouse_tuple[0]
+      for spouse_tuple in big_dict['spouse']
+    ]
+
   for person in people:
-    for name, gender in person.items():
-      cur_person = Person(name=name, gender=gender)
-      persons_dict[name] = cur_person
-      family.add_person(cur_person)
+    if "uid" not in person:
+      print("Warning: Person with no uid will not be included:")
+      print(person)
+      print("Every person needs a unique integer associated to them")
+      continue
 
-  for father in fathers:
-    father_person = persons_dict[father]
+    if person["uid"] in family.uids():
+      print("Warning: Next person with uid {person['uid']} will not")
+      print("be included.  uids should be unique integers")
+      print(person)
+      continue
+
+    family.add_person(Person.from_dict(person))
+
+  for father_uid in father_uids:
+    try:
+      father = family.uid_to_person(father_uid)
+    except TypeError as e:
+      print(f"Warning: Nobody has uid {uid}, so he can't be anyone's")
+      print("father.  Skipping.")
+      continue
     children = [
-        persons_dict[child_name]
-        for child_name in fathers[father]
+      family.uid_to_person(relation[1])
+      for relation in big_dict['father']
+      if relation[0] == father_uid
     ]
-    family.add_children(father_person, children)
+    family.add_children(father, children)
 
-  for mother in mothers:
-    mother_person = persons_dict[mother]
+  for mother_uid in mother_uids:
+    try:
+      mother = family.uid_to_person(mother_uid)
+    except TypeError as e:
+      print(f"Warning: Nobody has uid {uid}, so she can't be anyone's")
+      print("mother.  Skipping.")
+      continue
     children = [
-        persons_dict[child_name]
-        for child_name in mothers[mother]
+      family.uid_to_person(relation[1])
+      for relation in big_dict['mother']
+      if relation[0] == mother_uid
     ]
-    family.add_children(mother_person, children)
+    family.add_children(mother, children)
 
-  for spouse in spouses:
-    spouse_person = persons_dict[spouse]
-    spouse_primes = [
-        persons_dict[spouse_name]
-        for spouse_name in spouses[spouse]
+  for spouse_uid in spouse_uids:
+    try:
+      spouse = family.uid_to_person(spouse_uid)
+    except TypeError as e:
+      print(f"Warning: Nobody has uid {uid}, so they can't be anyone's")
+      print("spouse.  Skipping.")
+      continue
+    spouses = [
+      family.uid_to_person(relation[1])
+      for relation in big_dict['spouse']
+      if relation[0] == spouse_uid
     ]
-    family.add_spouses(spouse_person, spouse_primes)
-
-  for person_name in notes:
-    if person_name in persons_dict:
-
-      # Store the note with the corresponding Person as key.
-      family.notes[persons_dict[person_name]] = notes[person_name]
-    else:
-      logging.warn("Note\n\n{}\n\nprovided for {}, but they're not listed in "
-          "the people section.")
+    family.add_spouses(spouse, children)
 
   return family
 
@@ -617,16 +678,15 @@ def family_to_yaml(family):
   ])
 
 
-def create_blank_yaml(filename):
-  with open(filename, 'w') as yaml_file:
-    blank_entries = yaml.dump_all([
-      {'people': []},
-      {'father': []},
-      {'mother': []},
-      {'spouse': []},
-      {'notes': {}},
-    ])
-    yaml_file.write(blank_entries)
+def create_blank_toml(filename):
+  with open(filename, 'w') as toml_file:
+    blank_entries = toml.dumps({
+      'people': [],
+      'father': [],
+      'mother': [],
+      'spouse': [],
+    })
+    toml_file.write(blank_entries)
 
 
 def biglist_to_family(biglist):
@@ -859,11 +919,11 @@ def dot_file_generator(family, first_names_only=False):
   yield "digraph family_tree {"
 
   # Set up the nodes
-  for person_name in family.names():
-    uid = name_to_uid(person_name)
-    name = person_name
+  for person in family.persons():
+    uid = person.uid
+    name = str(person)
     if first_names_only:
-      name = first_name(name)
+      name = person.first_name()
     yield '  "{}" [label="{}", shape="box"];'.format(
         uid, name)
 
@@ -871,18 +931,18 @@ def dot_file_generator(family, first_names_only=False):
   for father in family.fathers():
     for child in family.children(father):
       yield '  "{}" -> "{}" [color=blue];'.format(
-          name_to_uid(father.name), 
-          name_to_uid(child.name))
+          father.uid, 
+          child.uid)
   for mother in family.mothers():
     for child in family.children(mother):
       yield '  "{}" -> "{}" [color=orange];'.format(
-          name_to_uid(mother.name),
-          name_to_uid(child.name))
+          mother.uid,
+          child.uid)
   for prime_spouse in family.spouses():
     for spouse in family.all_spouses(prime_spouse):
       yield '  "{}" -> "{}" [style="dotted"];'.format(
-          name_to_uid(prime_spouse.name),
-          name_to_uid(spouse.name))
+          prime_spouse.uid,
+          spouse.uid)
   yield "}"
 
 def interact(yaml_filename):
@@ -1050,25 +1110,23 @@ def cleanup_files(yaml_filename, base_filename):
     os.remove('{}.{}'.format(base_filename, extension))
 
 
-def generate_files(yaml_filename, base_filename):
+def generate_files(toml_filename, file_basename):
 
-  # Open the YAML file or fail gracefully
+  # Open the toml file or fail gracefully
   try:
-    with open(yaml_filename) as f:
-      family = pedigree_lib.yaml_to_family(f)
+    family = toml_to_family(toml_filename)
   except IOError as e:
-    print("\n\033[91mCouldn't open {}\033[0m\n".format(e.filename))
-    print(help_text)
+    print(f"\n\033[91mCouldn't open {toml_filename}\033[0m\n")
     exit(1)
 
   # Generate d3 html page
   with open('{}.html'.format(file_basename), 'w') as f:
-    for line in pedigree_lib.d3_html_page_generator(family):
+    for line in d3_html_page_generator(family):
       f.write(line)
 
   # Generate graphviz .dot file
   with open('{}.dot'.format(file_basename), 'w') as f:
-    for line in pedigree_lib.dot_file_generator(family):
+    for line in dot_file_generator(family):
       f.write(line + "\n")
 
   # Generate .svg from .dot file

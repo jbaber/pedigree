@@ -3,3 +3,4 @@ hashids
 networkx
 PyYAML
 easygui
+toml

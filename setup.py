@@ -23,6 +23,6 @@ if __name__ == "__main__":
         zip_safe=False,
         install_requires=requirements,
         include_package_data=True,
-        data_files=[('examples', ['examples/example.yaml'])],
-        version="0.1.0",
+        data_files=[('examples', ['examples/example.toml'])],
+        version="1.0.0",
     )

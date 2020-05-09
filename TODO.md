@@ -1,3 +1,4 @@
+- Fix spouses
 - Remove overly ambitious interactive GUI editor or
   separate it into a different module
 - [Package][] properly
