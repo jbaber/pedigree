@@ -4,12 +4,13 @@ import networkx as nx
 import yaml
 import easygui
 import tempfile
-from urllib import pathname2url
+from urllib.request import pathname2url
 import webbrowser
 import os
 import subprocess
 import time
 import logging
+from collections import Iterable
 
 """
 Family is kept as a "directed multigraph" with Persons as
@@ -33,52 +34,38 @@ class PersonExistsError(Exception):
 
 class Person(object):
   """
-  Persons are uniquely identified by their name string.
-  """
-  def __init__(self, name, gender):
-    self.name = name
-    self.gender = gender
+  Two Persons are identical if they have identical uids.
 
-  # Only care about the name
+  `uid` is cast to an integer by the constructor
+  `given_names` should be iterable
+  """
+  def __init__(self, surname, given_names, gender, uid):
+    self.surname = surname
+    self.gender = gender
+    self.uid = int(uid)
+    if not isintance(given_names, Iterable):
+      raise TypeError("Person constructor given non-iterable `given_names`")
+    if len(given_name) < 1:
+      raise TypeError("Person needs at least one given name.")
+    self.given_names = given_names
+
+  def __hash__(self):
+    return self.uid
+
   def __eq__(self, other):
-    # If `other` doesn't even have a name, then no chance.
-    if not hasattr(other, 'name'):
-      return False
-    return self.name == other.name
+    return self.uid == other.uid
 
   def __ne__(self, other):
-    # If `other` doesn't even have a name, they're guaranteed
-    # do be different.
-    if not hasattr(other, 'name'):
-      return True
-    return (self.name != other.name)
-
-  def __lt__(self, other):
-    return self.name < other.name
-
-  def __gt__(self, other):
-    return self.name > other.name
-
-  def __le__(self, other):
-    return self.name >= other.name
-
-  def __ge__(self, other):
-    return self.name <= other.name
+    return (self.uid != other.uid)
 
   def __str__(self):
-    return self.name
+    return " ".join(self.given_names) + " " + self.surname
 
   def __repr__(self):
-    return "{} ({})".format(self.name, self.gender)
-
-  def uid(self):
-    return name_to_uid(self.name)
+    return self.surname + ", " + ", ".join(self.given_names) + f"({self.gender})"
 
   def first_name(self):
-    """
-    Just return the non-unique first name
-    """
-    return first_name(self.name)
+    return self.given_names[0]
 
 def first_name(name):
   return name.split(' ')[0]
@@ -475,12 +462,6 @@ class Family(object):
     return new_person
 
 
-def name_to_uid(name):
-  """Give a unique id to any name"""
-  hashids_instance = hashids.Hashids()
-  return hashids_instance.encode(int(''.join([str(ord(x)) for x in name])))
-
-
 def split_biglist(biglist):
   """
   Take `biglist` as would be returned from a .yaml file
@@ -545,7 +526,7 @@ def yaml_to_family(yaml_file):
   try:
     people, fathers, mothers, spouses, notes = \
         yaml.load_all(yaml_file)
-  except yaml.constructor.ConstructorError, e:
+  except yaml.constructor.ConstructorError as e:
     print("{} is not a well-formed YAML file.  Maybe some names have special" \
         " characters in them?".format(yaml_file.name))
   people  = people['people'] if people['people'] else []
@@ -556,7 +537,7 @@ def yaml_to_family(yaml_file):
 
   persons_dict = {}
   for person in people:
-    for name, gender in person.iteritems():
+    for name, gender in person.items():
       cur_person = Person(name=name, gender=gender)
       persons_dict[name] = cur_person
       family.add_person(cur_person)
@@ -935,7 +916,7 @@ def interact(yaml_filename):
         [
         "a. Add a new person",
         ] + \
-        existing_relations.keys() + new_relations.keys() + \
+        list(existing_relations.keys()) + list(new_relations.keys()) + \
         [
         "j. Add new people as children of a couple",
         "k. Add a pair of spouses",
@@ -1075,7 +1056,7 @@ def generate_files(yaml_filename, base_filename):
   try:
     with open(yaml_filename) as f:
       family = pedigree_lib.yaml_to_family(f)
-  except IOError, e:
+  except IOError as e:
     print("\n\033[91mCouldn't open {}\033[0m\n".format(e.filename))
     print(help_text)
     exit(1)
