@@ -2,7 +2,6 @@ import hashids
 import re
 import networkx as nx
 import yaml
-import easygui
 import tempfile
 from urllib.request import pathname2url
 import webbrowser
