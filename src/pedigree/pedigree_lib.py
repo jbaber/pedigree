@@ -633,7 +633,7 @@ def toml_to_family(toml_filename):
       for relation in big_dict['spouse']
       if relation[0] == spouse_uid
     ]
-    family.add_spouses(spouse, children)
+    family.add_spouses(spouse, spouses)
 
   return family
 
