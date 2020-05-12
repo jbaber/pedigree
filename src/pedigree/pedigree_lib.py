@@ -1130,5 +1130,10 @@ def generate_files(toml_filename, file_basename):
 
   # Generate .svg from .dot file
   with open('{}.svg'.format(file_basename), 'w') as svg_file:
-    subprocess.Popen(['dot', '-Tsvg', '{}.dot'.format(file_basename)],
-        stdout=svg_file)
+    try:
+      subprocess.Popen(['dot', '-Tsvg', '{}.dot'.format(file_basename)],
+          stdout=svg_file)
+    except FileNotFoundError as e:
+      print("'dot' executable not available.  You need to install 'graphviz'")
+      print("from your package manager.")
+
