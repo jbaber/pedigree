@@ -80,9 +80,6 @@ class Person:
   def first_name(self):
     return self.given_names[0]
 
-def first_name(name):
-  return name.split(' ')[0]
-
 
 class Family:
   """
@@ -676,16 +673,114 @@ def family_to_yaml(family):
     {'notes': notes_part},
   ])
 
+def create_example_toml(filename):
+  example_toml = """
+father = [[2, 7], [2, 16], [7, 9], [9, 11], [12, 15], [4, 3], [3, 13], [3, 6]]
 
-def create_blank_toml(filename):
+mother = [[5, 3], [10, 15], [1, 7], [1, 16], [15, 11], [11, 6], [11, 13], [8, 9]]
+
+spouse = [[9, 14]]
+
+[[people]]
+surname = ""
+given_names = ["???"]
+gender = "f"
+uid = 1
+
+[[people]]
+surname = ""
+given_names = ["???"]
+gender = "m"
+uid = 2
+
+[[people]]
+surname = "Rubble"
+given_names = ["Bamm-Bamm"]
+gender = "m"
+uid = 3
+
+[[people]]
+given_names = ["Barney"]
+surname = "Rubble"
+gender = "m"
+uid = 4
+
+[[people]]
+given_names = ["Betty", "Jean"]
+surname = "McBricker"
+gender = "f"
+uid = 5
+
+[[people]]
+given_names = ["Chip"]
+surname = "Rubble"
+gender = "m"
+uid = 6
+
+[[people]]
+given_names = ["Ed"]
+surname = "Flintstone"
+gender = "m"
+uid = 7
+
+[[people]]
+given_names = ["Edna", "Hardrock"]
+surname = "Flintstone"
+gender = "f"
+uid = 8
+
+[[people]]
+given_names = ["Frederick", "Joseph"]
+nickname = "Fred"
+surname = "Flintstone"
+gender = "m"
+uid = 9
+
+[[people]]
+given_names = ["Pearl", "Pebble"]
+surname = "Slaghoople"
+gender = "f"
+uid = 10
+
+[[people]]
+given_names = ["Pebbles"]
+surname = "Flintstone"
+gender = "f"
+uid = 11
+
+[[people]]
+given_names = ["Ricky"]
+surname = "Slaghoople"
+gender = "m"
+uid = 12
+
+[[people]]
+given_names = ["Roxy"]
+surname = "Rubble"
+gender = "f"
+uid = 13
+
+[[people]]
+given_names = ["Secret"]
+surname = "Ex-Wife"
+gender = "f"
+uid = 14
+notes = ["Gossip", "More gossip"]
+
+[[people]]
+given_names = ["Wilma", "Pebbles"]
+surname = "Slaghoople"
+gender = "f"
+uid = 15
+
+[[people]]
+given_names = ["Zeke"]
+surname = "Flintstone"
+gender = "m"
+uid = 16
+  """
   with open(filename, 'w') as toml_file:
-    blank_entries = toml.dumps({
-      'people': [],
-      'father': [],
-      'mother': [],
-      'spouse': [],
-    })
-    toml_file.write(blank_entries)
+    toml_file.write(example_toml)
 
 
 def biglist_to_family(biglist):

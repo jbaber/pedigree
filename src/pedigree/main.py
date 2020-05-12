@@ -16,9 +16,13 @@ When run via
 starts a primitive GUI to interact with and edit your relations.toml file.  (If you don't give a `relations.toml` a blank one will
 be created for you.)
 
-For a quick example
+For a quick example, generate the example .toml file
 
-    pedigree -f examples/example.toml
+    pedigree -f new_relations.toml
+
+then generate output based on it
+
+    pedigree -f new_relations.toml generate
 
 Usage:
   pedigree [--toml-filename=<filename>]
@@ -45,7 +49,7 @@ def main():
 
   # If toml file doesn't exist or is completely empty, create a blank one
   if not os.path.exists(toml_filename) or os.stat(toml_filename).st_size == 0:
-    pedigree_lib.create_blank_toml(toml_filename)
+    pedigree_lib.create_example_toml(toml_filename)
 
   if args['cleanup']:
     pedigree_lib.cleanup_files(toml_filename, base_filename)
@@ -53,8 +57,6 @@ def main():
   elif args['generate']:
     pedigree_lib.generate_files(toml_filename, base_filename)
 
-  else:
-    pedigree_lib.interact(toml_filename)
 
 if __name__ == "__main__":
   main()
