@@ -9,13 +9,6 @@ version = '1.0.0'
 
 help_text = """pedigree
 
-When run via
-
-    pedigree -f relations.toml
-
-starts a primitive GUI to interact with and edit your relations.toml file.  (If you don't give a `relations.toml` a blank one will
-be created for you.)
-
 For a quick example, generate the example .toml file
 
     pedigree -f new_relations.toml
@@ -25,16 +18,19 @@ then generate output based on it
     pedigree -f new_relations.toml generate
 
 Usage:
-  pedigree [--toml-filename=<filename>]
-  pedigree generate [--base-filename=<filename>] [--toml-filename=<filename>] 
-  pedigree cleanup [--base-filename=<filename>]
-  pedigree -h | --help
+  pedigree [options] generate
+  pedigree [options] cleanup
+  pedigree [options]
+  pedigree --help
   pedigree --version
 
 Options:
   -h --help                      Show this screen.
   -v --version                   Show version.
   -f --toml-filename=<filename>  .toml file containing relations for tree.
+                                 If <filename> doesn't exist, a new file
+                                 with that name will be created with an
+                                 example inside.
                                  [DEFAULT: relations.toml]
   -b --base-filename=<filename>  XXX in output filenames XXX.svg, XXX.html, ...
                                  [DEFAULT: family_tree]
