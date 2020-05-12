@@ -34,6 +34,11 @@ Options:
                                  [DEFAULT: relations.toml]
   -b --base-filename=<filename>  XXX in output filenames XXX.svg, XXX.html, ...
                                  [DEFAULT: family_tree]
+  -x --exclude-surnames          Only show the initial letter of surnames making
+                                 your tree safe(r) to share publicly.  This is
+                                 necessary since "Mother's maiden name" is used
+                                 as a sort of password for lots of sensitive
+                                 applications
   cleanup                        Delete generated files (XXX.svg, etc.)
   generate                       Simply create the .svg, .dot, .html files
 """
@@ -51,7 +56,7 @@ def main():
     pedigree_lib.cleanup_files(toml_filename, base_filename)
 
   elif args['generate']:
-    pedigree_lib.generate_files(toml_filename, base_filename)
+    pedigree_lib.generate_files(toml_filename, base_filename, args["--exclude-surnames"])
 
 
 if __name__ == "__main__":

@@ -541,7 +541,7 @@ def split_biglist(biglist):
   return fathers, mothers, spouses
 
 
-def toml_to_family(toml_filename):
+def toml_to_family(toml_filename, exclude_surnames=True):
   family = Family()
 
   try:
@@ -550,6 +550,13 @@ def toml_to_family(toml_filename):
     print(f"\033[0;31m{toml_filename} is not a well-formed toml file.")
     print("  Maybe some names have special characters in them?\033[0m")
     raise e
+
+  if exclude_surnames:
+    for i in range(len(big_dict['people'])):
+      person = big_dict['people'][i]
+      cur_surname = person['surname']
+      if cur_surname != '':
+        big_dict['people'][i]['surname'] = cur_surname[0] + '.'
 
   # TODO Do this with defaultdict somehow not too verbosely
   people  = big_dict['people'] if 'people' in big_dict else []
@@ -1204,11 +1211,11 @@ def cleanup_files(yaml_filename, base_filename):
     os.remove('{}.{}'.format(base_filename, extension))
 
 
-def generate_files(toml_filename, file_basename):
+def generate_files(toml_filename, file_basename, exclude_surnames=True):
 
   # Open the toml file or fail gracefully
   try:
-    family = toml_to_family(toml_filename)
+    family = toml_to_family(toml_filename, exclude_surnames)
   except IOError as e:
     print(f"\n\033[91mCouldn't open {toml_filename}\033[0m\n")
     exit(1)
