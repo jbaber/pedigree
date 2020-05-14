@@ -57,7 +57,11 @@ class Person:
 
   def from_dict(some_dict):
     try:
-      return Person(**some_dict)
+      args = {'uid': some_dict['uid']}
+      for arg in ("surname", "given_names", "gender", "nickname", "notes",):
+        if arg in some_dict:
+          args[arg] = some_dict[arg]
+      return Person(**args)
     except TypeError as e:
       print("Person.from_dict's argument needs a uid field")
       raise e
