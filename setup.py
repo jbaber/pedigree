@@ -1,8 +1,5 @@
 from setuptools import setup, find_packages
 
-with open('requirements.txt') as f:
-  requirements = [line.strip() for line in f]
-
 with open('README.md') as f:
   long_description = "".join([line for line in f])
 
@@ -21,7 +18,7 @@ if __name__ == "__main__":
         },
         package_dir={"": "src"},
         zip_safe=False,
-        install_requires=requirements,
+        install_requires=["docopt", "hashids", "networkx", "PyYAML", "toml",],
         include_package_data=True,
         data_files=[('examples', ['examples/example.toml'])],
         version="1.0.0",
