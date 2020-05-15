@@ -78,8 +78,22 @@ class Person:
   def __str__(self):
     return " ".join(self.given_names) + " " + self.surname
 
-  def name_and_uid(self):
-    return " ".join(self.given_names) + f" {self.surname} ({self.uid})"
+  def display_string(self, style, with_uid=True):
+    if style == "full name":
+      to_return = " ".join(self.given_names) + f" {self.surname}"
+    elif style == "last initial":
+      to_return = " ".join(self.given_names) + f" {self.surname[0]}."
+    elif style == "last initial, no middle names":
+      to_return = self.given_names[0] + f" {self.surname[0]}."
+    elif style == "no middle names":
+      to_return = self.given_names[0] + f" {self.surname}"
+    else:
+      raise ValueError(f"Unknown style '{style}'")
+
+    if with_uid:
+      to_return += f" ({self.uid})"
+
+    return to_return
 
   def __repr__(self):
     return self.surname + ", " + ", ".join(self.given_names) + f"({self.gender})"
@@ -548,7 +562,7 @@ def split_biglist(biglist):
   return fathers, mothers, spouses
 
 
-def toml_to_family(toml_filename, exclude_surnames=True):
+def toml_to_family(toml_filename, style):
   family = Family()
 
   try:
@@ -557,13 +571,6 @@ def toml_to_family(toml_filename, exclude_surnames=True):
     print(f"\033[0;31m{toml_filename} is not a well-formed toml file.")
     print("  Maybe some names have special characters in them?\033[0m")
     raise e
-
-  if exclude_surnames:
-    for i in range(len(big_dict['people'])):
-      person = big_dict['people'][i]
-      cur_surname = person['surname']
-      if cur_surname != '':
-        big_dict['people'][i]['surname'] = cur_surname[0] + '.'
 
   # TODO Do this with defaultdict somehow not too verbosely
   people  = big_dict['people'] if 'people' in big_dict else []
@@ -805,7 +812,7 @@ def biglist_to_family(biglist):
   return Family(*split_biglist(biglist))
 
 
-def d3_html_page_generator(family):
+def d3_html_page_generator(family, style):
   """Yield lines of an html page showing connections"""
   yield """<!DOCTYPE html>
   <meta charset="utf-8">
@@ -860,23 +867,23 @@ def d3_html_page_generator(family):
   family = {"""
   yield '  "father": {'
   for father in family.fathers():
-    yield '"{}": ['.format(father.name_and_uid())
+    yield '"{}": ['.format(father.display_string(style))
     for child in family.children(father):
-      yield '"{}",\n'.format(child.name_and_uid())
+      yield '"{}",\n'.format(child.display_string(style))
     yield '],\n'
   yield '},\n'
   yield '"mother": {\n'
   for mother in family.mothers():
-    yield '"{}": [\n'.format(mother.name_and_uid())
+    yield '"{}": [\n'.format(mother.display_string(style))
     for child in family.children(mother):
-      yield '"{}",\n'.format(child.name_and_uid())
+      yield '"{}",\n'.format(child.display_string(style))
     yield '],\n'
   yield '},\n'
   yield '"spouse": {\n'
   for prime_spouse in family.spouses():
-    yield '"{}": [\n'.format(prime_spouse.name_and_uid())
+    yield '"{}": [\n'.format(prime_spouse.display_string(style))
     for spouse in family.all_spouses(prime_spouse):
-      yield '"{}",\n'.format(spouse.name_and_uid())
+      yield '"{}",\n'.format(spouse.display_string(style))
     yield '],\n'
   yield '}\n'
   yield """
@@ -1218,18 +1225,18 @@ def cleanup_files(yaml_filename, base_filename):
     os.remove('{}.{}'.format(base_filename, extension))
 
 
-def generate_files(toml_filename, file_basename, exclude_surnames=True):
+def generate_files(toml_filename, file_basename, style):
 
   # Open the toml file or fail gracefully
   try:
-    family = toml_to_family(toml_filename, exclude_surnames)
+    family = toml_to_family(toml_filename, style)
   except IOError as e:
     print(f"\n\033[91mCouldn't open {toml_filename}\033[0m\n")
     exit(1)
 
   # Generate d3 html page
   with open('{}.html'.format(file_basename), 'w') as f:
-    for line in d3_html_page_generator(family):
+    for line in d3_html_page_generator(family, style):
       f.write(line)
 
   # Generate graphviz .dot file

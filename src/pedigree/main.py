@@ -39,6 +39,9 @@ Options:
                                  necessary since "Mother's maiden name" is used
                                  as a sort of password for lots of sensitive
                                  applications
+  -X --exclude-middle-names      Don't show middle names (some family
+                                 naming conventions would reveal maiden
+                                 names via middle names)
   cleanup                        Delete generated files (XXX.svg, etc.)
   generate                       Simply create the .svg, .dot, .html files
 """
@@ -56,7 +59,16 @@ def main():
     pedigree_lib.cleanup_files(toml_filename, base_filename)
 
   elif args['generate']:
-    pedigree_lib.generate_files(toml_filename, base_filename, args["--exclude-surnames"])
+    if args["--exclude-surnames"] and args["--exclude-middle-names"]:
+      style = "last initial, no middle names"
+    elif args["--exclude-surnames"]:
+      style = "last initial"
+    elif args["--exclude-middle-names"]:
+      style = "no middle names"
+    else:
+      style = "full name"
+
+    pedigree_lib.generate_files(toml_filename, base_filename, style)
 
 
 if __name__ == "__main__":
