@@ -2,7 +2,6 @@
 few messy visualizations that do not favor patriliny over matriliny.  See `examples/` for example output.
 
 ![Screenshot 1](media/screenshot1.png)
-![Screenshot 2](media/screenshot2.png)
 
 Example:
 --------
@@ -13,8 +12,9 @@ If you're in a hurry to play,
 Outputs:
 --------
   - `.html` file: a [d3][] visualization that can be opened in a web browser
-  - `.svg` file: a "Sugiyama style" tree that can be opened in a web browser
-  - `.dot` file: the [dot][] file used to generate the `.svg` file
+  - SVG broken for now
+    - `.svg` file: a "Sugiyama style" tree that can be opened in a web browser
+    - `.dot` file: the [dot][] file used to generate the `.svg` file
 
 Installation:
 -------------
