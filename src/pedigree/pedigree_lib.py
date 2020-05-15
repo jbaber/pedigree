@@ -867,14 +867,14 @@ def d3_html_page_generator(family):
   yield '},\n'
   yield '"mother": {\n'
   for mother in family.mothers():
-    yield '"{}": [\n'.format(mother)
+    yield '"{}": [\n'.format(mother.name_and_uid())
     for child in family.children(mother):
       yield '"{}",\n'.format(child.name_and_uid())
     yield '],\n'
   yield '},\n'
   yield '"spouse": {\n'
   for prime_spouse in family.spouses():
-    yield '"{}": [\n'.format(prime_spouse)
+    yield '"{}": [\n'.format(prime_spouse.name_and_uid())
     for spouse in family.all_spouses(prime_spouse):
       yield '"{}",\n'.format(spouse.name_and_uid())
     yield '],\n'
