@@ -78,6 +78,9 @@ class Person:
   def __str__(self):
     return " ".join(self.given_names) + " " + self.surname
 
+  def name_and_uid(self):
+    return " ".join(self.given_names) + f" {self.surname} ({self.uid})"
+
   def __repr__(self):
     return self.surname + ", " + ", ".join(self.given_names) + f"({self.gender})"
 
@@ -857,23 +860,23 @@ def d3_html_page_generator(family):
   family = {"""
   yield '  "father": {'
   for father in family.fathers():
-    yield '"{}": ['.format(father)
+    yield '"{}": ['.format(father.name_and_uid())
     for child in family.children(father):
-      yield '"{}",\n'.format(child)
+      yield '"{}",\n'.format(child.name_and_uid())
     yield '],\n'
   yield '},\n'
   yield '"mother": {\n'
   for mother in family.mothers():
     yield '"{}": [\n'.format(mother)
     for child in family.children(mother):
-      yield '"{}",\n'.format(child)
+      yield '"{}",\n'.format(child.name_and_uid())
     yield '],\n'
   yield '},\n'
   yield '"spouse": {\n'
   for prime_spouse in family.spouses():
     yield '"{}": [\n'.format(prime_spouse)
     for spouse in family.all_spouses(prime_spouse):
-      yield '"{}",\n'.format(spouse)
+      yield '"{}",\n'.format(spouse.name_and_uid())
     yield '],\n'
   yield '}\n'
   yield """
