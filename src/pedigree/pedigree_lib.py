@@ -1239,17 +1239,17 @@ def generate_files(toml_filename, file_basename, style):
     for line in d3_html_page_generator(family, style):
       f.write(line)
 
-  # Generate graphviz .dot file
-  with open('{}.dot'.format(file_basename), 'w') as f:
-    for line in dot_file_generator(family):
-      f.write(line + "\n")
+  # # Generate graphviz .dot file
+  # with open('{}.dot'.format(file_basename), 'w') as f:
+  #   for line in dot_file_generator(family):
+  #     f.write(line + "\n")
 
-  # Generate .svg from .dot file
-  with open('{}.svg'.format(file_basename), 'w') as svg_file:
-    try:
-      subprocess.Popen(['dot', '-Tsvg', '{}.dot'.format(file_basename)],
-          stdout=svg_file)
-    except FileNotFoundError as e:
-      print("'dot' executable not available.  You need to install 'graphviz'")
-      print("from your package manager.")
+  # # Generate .svg from .dot file
+  # with open('{}.svg'.format(file_basename), 'w') as svg_file:
+  #   try:
+  #     subprocess.Popen(['dot', '-Tsvg', '{}.dot'.format(file_basename)],
+  #         stdout=svg_file)
+  #   except FileNotFoundError as e:
+  #     print("'dot' executable not available.  You need to install 'graphviz'")
+  #     print("from your package manager.")
 
