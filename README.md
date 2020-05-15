@@ -22,11 +22,6 @@ Outputs:
 
 Installation:
 -------------
-You must first install [graphviz][dot] via
-
-    sudo apt-get install graphviz
-
-Then,
 
     pip3 install pedigree
 
