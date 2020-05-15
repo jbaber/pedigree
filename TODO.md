@@ -1,4 +1,4 @@
-- Fix spouses
+- Fix svg
 - Remove overly ambitious interactive GUI editor or
   separate it into a different module
 - [Package][] properly
@@ -18,8 +18,6 @@
 - Make colors specifiable
 - Give option to favor patriliny over matriliny or vice-versa
   to make a planar graph.
-- Add ability to make visualizations that have anonymized names
-  and/or only first names.
 - Somehow add tests for GUI stuff.
 
 [Package]: http://blog.ionelmc.ro/2015/02/24/the-problem-with-packaging-in-python/
