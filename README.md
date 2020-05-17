@@ -27,6 +27,13 @@ Installation:
 
 `pedigree --help` will tell you your options.
 
+Bugs:
+-----
+
+Please create an [issue](https://github.com/jbaber/pedigree/issues) for any bugs you find.
+
+If you're a developer, the bugs are actually being kept in [git-bug](https://github.com/MichaelMure/git-bug), so feel free to work with them there.
+
 Caveats:
 --------
   - Don't put all your genealogical data in one text file that you manipulate via a python script written by some idiot on the internet.  At least make copies of the one text file.
