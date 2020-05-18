@@ -5,7 +5,7 @@ from docopt import docopt
 import os
 from pedigree import pedigree_lib
 
-version = '1.0.0'
+version = '1.1.0'
 
 help_text = """pedigree
 
