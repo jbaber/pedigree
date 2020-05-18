@@ -561,7 +561,7 @@ def split_biglist(biglist):
   return fathers, mothers, spouses
 
 
-def toml_to_family(toml_filename, style):
+def toml_to_family(toml_filename):
   family = Family()
 
   try:
@@ -811,8 +811,13 @@ def biglist_to_family(biglist):
   return Family(*split_biglist(biglist))
 
 
-def d3_html_page_generator(family, style):
+def d3_html_page_generator(family, liny, style):
   """Yield lines of an html page showing connections"""
+
+  linys = ["both", "matri", "patri"]
+  if liny not in linys:
+    raise TypeError(f"Unknown liny '{liny}'.  Only know " + ", ".join(linys))
+
   yield """<!DOCTYPE html>
   <meta charset="utf-8">
   <style>
@@ -865,18 +870,20 @@ def d3_html_page_generator(family, style):
   }
   family = {"""
   yield '  "father": {'
-  for father in family.fathers():
-    yield '"{}": ['.format(father.display_string(style))
-    for child in family.children(father):
-      yield '"{}",\n'.format(child.display_string(style))
-    yield '],\n'
+  if liny in ("patri", "both"):
+   for father in family.fathers():
+     yield '"{}": ['.format(father.display_string(style))
+     for child in family.children(father):
+       yield '"{}",\n'.format(child.display_string(style))
+     yield '],\n'
   yield '},\n'
   yield '"mother": {\n'
-  for mother in family.mothers():
-    yield '"{}": [\n'.format(mother.display_string(style))
-    for child in family.children(mother):
-      yield '"{}",\n'.format(child.display_string(style))
-    yield '],\n'
+  if liny in ("matri", "both"):
+    for mother in family.mothers():
+      yield '"{}": [\n'.format(mother.display_string(style))
+      for child in family.children(mother):
+        yield '"{}",\n'.format(child.display_string(style))
+      yield '],\n'
   yield '},\n'
   yield '"spouse": {\n'
   for prime_spouse in family.spouses():
@@ -1027,8 +1034,12 @@ def show_temp_rigid_chart(family, first_names_only=False):
 
   # Don't delete it since the user may want to examine it.
 
-def dot_file_generator(family, style):
+def dot_file_generator(family, liny, style):
   """Generate a graphviz .dot file"""
+
+  linys = ["both", "matri", "patri"]
+  if liny not in linys:
+    raise TypeError(f"Unknown liny '{liny}'.  Only know " + ", ".join(linys))
 
   yield "digraph family_tree {"
 
@@ -1040,16 +1051,18 @@ def dot_file_generator(family, style):
         uid, name)
 
   # Set up the connections
-  for father in family.fathers():
-    for child in family.children(father):
-      yield '  "{}" -> "{}" [color=blue];'.format(
-          father.uid, 
-          child.uid)
-  for mother in family.mothers():
-    for child in family.children(mother):
-      yield '  "{}" -> "{}" [color=orange];'.format(
-          mother.uid,
-          child.uid)
+  if liny in ["patri", "both"]:
+    for father in family.fathers():
+      for child in family.children(father):
+        yield '  "{}" -> "{}" [color=blue];'.format(
+            father.uid, 
+            child.uid)
+  if liny in ["matri", "both"]:
+    for mother in family.mothers():
+      for child in family.children(mother):
+        yield '  "{}" -> "{}" [color=orange];'.format(
+            mother.uid,
+            child.uid)
   for prime_spouse in family.spouses():
     for spouse in family.all_spouses(prime_spouse):
       yield '  "{}" -> "{}" [style="dotted"];'.format(
@@ -1222,23 +1235,23 @@ def cleanup_files(yaml_filename, base_filename):
     os.remove('{}.{}'.format(base_filename, extension))
 
 
-def generate_files(toml_filename, file_basename, style):
+def generate_files(toml_filename, file_basename, liny, style):
 
   # Open the toml file or fail gracefully
   try:
-    family = toml_to_family(toml_filename, style)
+    family = toml_to_family(toml_filename)
   except IOError as e:
     print(f"\n\033[91mCouldn't open {toml_filename}\033[0m\n")
     exit(1)
 
   # Generate d3 html page
   with open('{}.html'.format(file_basename), 'w') as f:
-    for line in d3_html_page_generator(family, style):
+    for line in d3_html_page_generator(family, liny, style):
       f.write(line)
 
   # Generate graphviz .dot file
   with open('{}.dot'.format(file_basename), 'w') as f:
-    for line in dot_file_generator(family, style):
+    for line in dot_file_generator(family, liny, style):
       f.write(line + "\n")
 
   # Generate .svg from .dot file

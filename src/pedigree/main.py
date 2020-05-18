@@ -42,6 +42,8 @@ Options:
   -X --exclude-middle-names      Don't show middle names (some family
                                  naming conventions would reveal maiden
                                  names via middle names)
+  -p --patriliny                 Only show father-of and spouse-of relations
+  -m --matriliny                 Only show father-of and spouse-of relations
   cleanup                        Delete generated files (XXX.svg, etc.)
   generate                       Simply create the .svg, .dot, .html files
 """
@@ -50,6 +52,15 @@ def main():
   args = docopt(help_text, version=version)
   base_filename = args['--base-filename']
   toml_filename = args['--toml-filename']
+
+  if not args['--patriliny'] and not args['--matriliny']:
+    liny = "both"
+  if args['--patriliny'] and args['--matriliny']:
+    liny = "both"
+  if args['--patriliny'] and not args['--matriliny']:
+    liny = "patri"
+  if not args['--patriliny'] and args['--matriliny']:
+    liny = "matri"
 
   # If toml file doesn't exist or is completely empty, create a blank one
   if not os.path.exists(toml_filename) or os.stat(toml_filename).st_size == 0:
@@ -68,7 +79,7 @@ def main():
     else:
       style = "full name"
 
-    pedigree_lib.generate_files(toml_filename, base_filename, style)
+    pedigree_lib.generate_files(toml_filename, base_filename, liny, style)
 
 
 if __name__ == "__main__":
