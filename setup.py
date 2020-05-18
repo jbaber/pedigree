@@ -21,5 +21,5 @@ if __name__ == "__main__":
         install_requires=["docopt", "hashids", "networkx", "PyYAML", "toml",],
         include_package_data=True,
         data_files=[('examples', ['examples/example.toml'])],
-        version="1.0.0",
+        version="1.1.0",
     )
