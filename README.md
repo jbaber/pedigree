@@ -2,6 +2,7 @@
 few messy visualizations that do not favor patriliny over matriliny.  See `examples/` for example output.
 
 ![Screenshot 1](media/screenshot1.png)
+![Screenshot 2](media/screenshot2.png)
 
 Example:
 --------
@@ -16,9 +17,8 @@ then generate output based on it
 Outputs:
 --------
   - `.html` file: a [d3][] visualization that can be opened in a web browser
-  - SVG broken for now
-    - `.svg` file: a "Sugiyama style" tree that can be opened in a web browser
-    - `.dot` file: the [dot][] file used to generate the `.svg` file
+  - `.svg` file: a "Sugiyama style" tree that can be opened in a web browser
+  - `.dot` file: the [dot][] file used to generate the `.svg` file
 
 Installation:
 -------------
@@ -26,6 +26,9 @@ Installation:
     pip3 install pedigree
 
 `pedigree --help` will tell you your options.
+
+You need to install `graphviz` form your package manager if you want to
+generate .svg output
 
 Bugs:
 -----
