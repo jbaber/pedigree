@@ -1248,5 +1248,5 @@ def generate_files(toml_filename, file_basename, style):
           stdout=svg_file)
     except FileNotFoundError as e:
       print("'dot' executable not available.  You need to install 'graphviz'")
-      print("from your package manager.")
+      print("from your package manager if you want to get an .svg file.")
 
