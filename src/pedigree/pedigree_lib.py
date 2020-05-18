@@ -341,13 +341,13 @@ class Family:
       raise PersonExistsError(
           "{} isn't in the family yet.".format(parent))
 
-    return [
+    return set([
       edge[1]
       for edge in self.graph.edges(data=True)
       if (edge[2]['relation_type'] == "father" or \
           edge[2]['relation_type'] == "mother") and \
          edge[0] == parent
-    ]
+    ])
 
   def fathers(self):
     return set([
@@ -1027,7 +1027,7 @@ def show_temp_rigid_chart(family, first_names_only=False):
 
   # Don't delete it since the user may want to examine it.
 
-def dot_file_generator(family, first_names_only=False):
+def dot_file_generator(family, style):
   """Generate a graphviz .dot file"""
 
   yield "digraph family_tree {"
@@ -1035,9 +1035,7 @@ def dot_file_generator(family, first_names_only=False):
   # Set up the nodes
   for person in family.persons():
     uid = person.uid
-    name = str(person)
-    if first_names_only:
-      name = person.first_name()
+    name = person.display_string(style)
     yield '  "{}" [label="{}", shape="box"];'.format(
         uid, name)
 
@@ -1238,17 +1236,17 @@ def generate_files(toml_filename, file_basename, style):
     for line in d3_html_page_generator(family, style):
       f.write(line)
 
-  # # Generate graphviz .dot file
-  # with open('{}.dot'.format(file_basename), 'w') as f:
-  #   for line in dot_file_generator(family):
-  #     f.write(line + "\n")
+  # Generate graphviz .dot file
+  with open('{}.dot'.format(file_basename), 'w') as f:
+    for line in dot_file_generator(family, style):
+      f.write(line + "\n")
 
-  # # Generate .svg from .dot file
-  # with open('{}.svg'.format(file_basename), 'w') as svg_file:
-  #   try:
-  #     subprocess.Popen(['dot', '-Tsvg', '{}.dot'.format(file_basename)],
-  #         stdout=svg_file)
-  #   except FileNotFoundError as e:
-  #     print("'dot' executable not available.  You need to install 'graphviz'")
-  #     print("from your package manager.")
+  # Generate .svg from .dot file
+  with open('{}.svg'.format(file_basename), 'w') as svg_file:
+    try:
+      subprocess.Popen(['dot', '-Tsvg', '{}.dot'.format(file_basename)],
+          stdout=svg_file)
+    except FileNotFoundError as e:
+      print("'dot' executable not available.  You need to install 'graphviz'")
+      print("from your package manager.")
 
